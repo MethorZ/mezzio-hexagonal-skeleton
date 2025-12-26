@@ -1,0 +1,51 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Local configuration overrides
+/backend/config/autoload/*.local.php
+/backend/config/autoload/local.php
+
+# IDEs
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+/backend/vendor/
+/frontend/node_modules/
+
+# Build artifacts
+/backend/.phpcs-cache
+/backend/.phpunit.cache/
+
+# Runtime data - ignore everything except directory structure
+/backend/data/*
+!/backend/data/cache/
+!/backend/data/logs/
+/backend/data/cache/*
+!/backend/data/cache/.gitkeep
+/backend/data/logs/*
+!/backend/data/logs/.gitkeep
+
+# Docker
+/docker/mysql/data/
+
+# Logs
+*.log
+
+# Testing
+/backend/tests/_output/*
+!/backend/tests/_output/.gitkeep
+/backend/tests/_support/_generated/
+/backend/tests/Acceptance.suite.yml
+/backend/tests/Functional.suite.yml
+/backend/tests/Unit.suite.yml

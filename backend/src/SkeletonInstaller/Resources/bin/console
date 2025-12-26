@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use MethorZ\OpenApi\Command\GenerateOpenApiCommand;
+use Symfony\Component\Console\Application;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$container = require __DIR__ . '/../config/container.php';
+
+$application = new Application('Console', '1.0.0');
+
+// Register OpenAPI command if package is installed
+if (class_exists(GenerateOpenApiCommand::class)) {
+    $application->add(new GenerateOpenApiCommand($container));
+}
+
+$application->run();
+

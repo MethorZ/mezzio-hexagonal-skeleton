@@ -1,0 +1,30 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 9
+    paths:
+        - src
+
+    # Parallel processing for faster analysis
+    parallel:
+        jobSize: 20
+        maximumNumberOfProcesses: 16
+        minimumNumberOfJobsPerProcess: 2
+
+    # File extensions to analyze
+    fileExtensions:
+        - php
+
+    # Exclude patterns
+    excludePaths:
+        - vendor
+        - src/*/Tests/*
+        - src/SkeletonInstaller/*
+
+    # Strict type checking
+    inferPrivatePropertyTypeFromConstructor: true
+    reportUnmatchedIgnoredErrors: false
+
+    # Cache directory
+    tmpDir: data/cache/phpstan

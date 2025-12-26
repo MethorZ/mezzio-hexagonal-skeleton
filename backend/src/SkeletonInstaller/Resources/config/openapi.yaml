@@ -1,0 +1,44 @@
+# OpenAPI Specification Configuration
+#
+# Automatic OpenAPI 3.0 spec generation from routes and DTOs.
+#
+# Generate manually:
+#   composer docs
+#
+# Auto-generated with:
+#   composer check  (includes openapi generation)
+#
+# Output: docs/openapi.yaml, docs/openapi.json
+
+# API Information
+info:
+  title: API Documentation
+  version: 1.0.0
+  description: Automatically generated from routes and DTOs
+
+# API Servers
+servers:
+  - url: http://localhost:8080
+    description: Development Server
+
+# Output Configuration
+outputPath: docs/openapi.yaml
+generateJson: true
+
+# Optional: Security Schemes
+# securitySchemes:
+#   bearerAuth:
+#     type: http
+#     scheme: bearer
+#     bearerFormat: JWT
+#
+# security:
+#   - bearerAuth: []
+
+# Optional: Global Tags
+# tags:
+#   - name: Articles
+#     description: Article management endpoints
+#   - name: Health
+#     description: Health check endpoints
+
