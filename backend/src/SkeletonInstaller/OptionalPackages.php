@@ -407,6 +407,11 @@ class OptionalPackages
 
         // Write updated composer.json
         $this->composerJson->write($this->composerDefinition);
+
+        // For hexagonal architecture, also add packages to backend/composer.json
+        if ($this->architectureStyle === 'hexagonal') {
+            $this->syncPackagesToBackendComposer();
+        }
     }
 
     /**
@@ -1056,6 +1061,56 @@ class OptionalPackages
         file_put_contents($backendComposerFile, $json);
 
         $this->io->write('  Updated <info>backend/composer.json</info> with hexagonal namespaces');
+    }
+
+    /**
+     * Sync optional packages from root composer.json to backend/composer.json
+     * This is needed for hexagonal projects where composer runs from backend directory
+     */
+    private function syncPackagesToBackendComposer(): void
+    {
+        $backendComposerFile = $this->projectRoot . '/backend/composer.json';
+
+        if (!file_exists($backendComposerFile)) {
+            return;
+        }
+
+        $backendComposer = json_decode(file_get_contents($backendComposerFile), true);
+
+        if (!$backendComposer) {
+            $this->io->write('  <warning>Could not read backend/composer.json for package sync</warning>');
+            return;
+        }
+
+        // Ensure sections exist
+        if (!isset($backendComposer['require'])) {
+            $backendComposer['require'] = [];
+        }
+        if (!isset($backendComposer['require-dev'])) {
+            $backendComposer['require-dev'] = [];
+        }
+
+        // Sync require packages (skip php constraint)
+        if (isset($this->composerDefinition['require'])) {
+            foreach ($this->composerDefinition['require'] as $package => $version) {
+                if ($package !== 'php') {
+                    $backendComposer['require'][$package] = $version;
+                }
+            }
+        }
+
+        // Sync require-dev packages
+        if (isset($this->composerDefinition['require-dev'])) {
+            foreach ($this->composerDefinition['require-dev'] as $package => $version) {
+                $backendComposer['require-dev'][$package] = $version;
+            }
+        }
+
+        // Write updated backend/composer.json
+        $json = json_encode($backendComposer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+        file_put_contents($backendComposerFile, $json);
+
+        $this->io->write('  Synced packages to <info>backend/composer.json</info>');
     }
 
     /**

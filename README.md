@@ -54,6 +54,12 @@ During the interactive setup, you'll choose between two architectural approaches
 composer create-project methorz/mezzio-hexagonal-skeleton my-project
 ```
 
+> **Note:** If you have PHP < 8.4 on your host machine, use:
+> ```bash
+> composer create-project methorz/mezzio-hexagonal-skeleton my-project --ignore-platform-reqs
+> ```
+> This is safe because everything runs in Docker with PHP 8.4.
+
 That's it! The setup will automatically:
 - Run the interactive package installer
 - Install all dependencies via Docker

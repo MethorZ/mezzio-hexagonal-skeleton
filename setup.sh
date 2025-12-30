@@ -99,7 +99,7 @@ fi
 # Always install after installer runs (to get new packages), otherwise only if vendor missing
 if [ $INSTALLER_RAN -eq 1 ] || [ ! -d "backend/vendor" ]; then
     echo -e "${BLUE}Installing selected packages...${NC}"
-    
+
     # For hexagonal architecture, run composer from backend directory
     # (detected by presence of Core module)
     if [ -d "backend/src/Core" ]; then
@@ -109,7 +109,7 @@ if [ $INSTALLER_RAN -eq 1 ] || [ ! -d "backend/vendor" ]; then
         # For minimal architecture, install from project root
         docker run --rm -v "$(pwd):/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
     fi
-    
+
     echo -e "${GREEN}Packages installed${NC}"
     echo ""
 fi
