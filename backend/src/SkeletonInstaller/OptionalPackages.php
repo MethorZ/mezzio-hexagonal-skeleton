@@ -977,6 +977,13 @@ class OptionalPackages
         $this->composerDefinition['autoload']['psr-4']['HealthCheck\\'] = 'backend/src/HealthCheck/';
         $this->composerDefinition['autoload']['psr-4']['Article\\'] = 'backend/src/Article/';
 
+        // Remove vendor-dir config for hexagonal projects
+        // For hexagonal architecture, composer should run from backend/ directory
+        // The vendor-dir config causes autoloader path issues in Docker
+        if (isset($this->composerDefinition['config']['vendor-dir'])) {
+            unset($this->composerDefinition['config']['vendor-dir']);
+        }
+
         // Ensure autoload-dev exists and has psr-4
         if (!isset($this->composerDefinition['autoload-dev'])) {
             $this->composerDefinition['autoload-dev'] = [];
