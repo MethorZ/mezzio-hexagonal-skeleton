@@ -1150,7 +1150,7 @@ class OptionalPackages
         $currentName = $this->composerDefinition['name'] ?? '';
 
         // Only update if using the skeleton's original name
-        if ($currentName === 'methorz/hexa-skeleton') {
+        if ($currentName === 'methorz/mezzio-hexagonal-skeleton') {
             $projectDir = basename($this->projectRoot);
 
             // Sanitize directory name to match Composer's package name requirements
@@ -1167,7 +1167,7 @@ class OptionalPackages
 
             // Fallback to 'unnamed' if name is empty, invalid, or suggests skeleton/testing
             if (empty($projectName) ||
-                in_array($projectName, ['backend', 'hexa-skeleton', 'hexaskeleton'], true)) {
+                in_array($projectName, ['backend', 'hexa-skeleton', 'hexaskeleton', 'mezzio-hexagonal-skeleton', 'mezziohexagonalskeleton'], true)) {
                 $projectName = 'unnamed';
             }
 

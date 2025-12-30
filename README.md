@@ -1,6 +1,6 @@
-# Project Skeleton
+# Mezzio Skeleton with Architecture Choice
 
-> Minimal Mezzio skeleton application with PHP 8.4+
+> Mezzio skeleton with architecture choice: **Minimal** or **Hexagonal (DDD)**. Modern PHP 8.4+ development with optional packages.
 
 [![PHP Version](https://img.shields.io/badge/php-%5E8.4-blue)](https://www.php.net/)
 [![Mezzio](https://img.shields.io/badge/mezzio-%5E3.25-purple)](https://docs.mezzio.dev/)
@@ -9,7 +9,7 @@
 
 ## Overview
 
-**This** is a minimal Mezzio skeleton application providing:
+A modern Mezzio skeleton that lets you **choose your architecture** during setup:
 
 - **PHP 8.4** with strict types
 - **Mezzio Framework** for PSR-15 middleware
@@ -17,6 +17,30 @@
 - **FastRoute** for high-performance routing
 - **Docker** ready with PHP 8.4 + Nginx
 - **Quality tools**: PHPStan (level 9), PHP_CodeSniffer, PHPUnit
+- **Architecture choice**: Minimal or Hexagonal (DDD)
+
+## Architecture Options
+
+During the interactive setup, you'll choose between two architectural approaches:
+
+### 🏗️ Minimal Architecture
+**Best for**: Small to medium projects, APIs, microservices, rapid prototyping
+
+- Simple, flat structure
+- Request handlers in `Application/Handler/`
+- Straightforward and easy to understand
+- Quick to get started
+
+### 🎯 Hexagonal Architecture (Ports & Adapters / DDD)
+**Best for**: Complex domains, large teams, long-term maintainability
+
+- Domain-Driven Design with clear layer separation
+- Business logic independent of framework
+- Modular structure (Core, HealthCheck, Article example modules)
+- Ports & Adapters pattern
+- Comprehensive ARCHITECTURE.md guide included
+
+**After setup**, your project will have an architecture-specific README with detailed guidance for your chosen approach.
 
 ## Prerequisites
 
@@ -27,7 +51,7 @@
 ### With Composer (One Command)
 
 ```bash
-composer create-project methorz/hexa-skeleton my-project
+composer create-project methorz/mezzio-hexagonal-skeleton my-project
 ```
 
 That's it! The setup will automatically:
@@ -41,7 +65,7 @@ That's it! The setup will automatically:
 ### Without Composer (Two Commands)
 
 ```bash
-git clone https://github.com/methorz/hexa-skeleton.git my-project
+git clone https://github.com/MethorZ/mezzio-hexagonal-skeleton.git my-project
 cd my-project
 ./setup.sh
 ```
@@ -52,13 +76,14 @@ Same automated process runs from here. Visit **http://localhost:8081** when comp
 
 The setup process is fully automated:
 
-1. **Interactive package selection** - Choose which optional packages to install (Monolog, Validator, Database, etc.)
-2. **Package configuration** - ConfigProviders and middleware automatically registered
-3. **Dependency installation** - Selected packages installed via Docker
-4. **Docker image building** - Custom PHP 8.4 + Nginx images built
-5. **Container startup** - Application containers started
-6. **Development mode** - Development environment configured
-7. **Verification & cleanup** - Setup verified, then setup files automatically removed
+1. **Architecture selection** - Choose between Minimal or Hexagonal architecture
+2. **Interactive package selection** - Choose which optional packages to install (Monolog, Validator, Database, etc.)
+3. **Package configuration** - ConfigProviders and middleware automatically registered
+4. **Dependency installation** - Selected packages installed via Docker
+5. **Docker image building** - Custom PHP 8.4 + Nginx images built
+6. **Container startup** - Application containers started
+7. **Development mode** - Development environment configured
+8. **Verification & cleanup** - Setup verified, then setup files automatically removed
 
 After successful setup, the project is production-ready with no setup artifacts left behind.
 
@@ -123,6 +148,12 @@ composer require methorz/swift-db
 
 ## Project Structure
 
+The project structure depends on your architecture choice:
+
+- **Minimal**: Simple `backend/src/App/Application/` structure
+- **Hexagonal**: Modular structure with `Core/`, `HealthCheck/`, `Article/` modules
+
+**Example (Minimal Architecture)**:
 ```
 project/
 ├── backend/
@@ -140,8 +171,10 @@ project/
 ├── docker/                         # Docker configuration
 ├── docker-compose.yml
 ├── Makefile
-└── setup.sh
+└── README.md
 ```
+
+See your architecture-specific README after project creation for detailed structure documentation.
 
 ## Command Reference
 

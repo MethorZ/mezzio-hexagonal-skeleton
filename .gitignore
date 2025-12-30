@@ -27,6 +27,7 @@ Thumbs.db
 
 # Dependencies
 /backend/vendor/
+/backend/composer.lock
 /frontend/node_modules/
 
 # Build artifacts

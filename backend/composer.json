@@ -1,6 +1,6 @@
 {
-    "name": "methorz/hexa-skeleton",
-    "description": "Minimal Mezzio skeleton application with PHP 8.4+",
+    "name": "methorz/mezzio-hexagonal-skeleton",
+    "description": "Mezzio skeleton with architecture choice: minimal or hexagonal (DDD). Includes optional packages for modern PHP 8.4+ REST API development.",
     "type": "project",
     "license": "MIT",
     "config": {
