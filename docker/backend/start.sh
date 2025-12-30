@@ -12,6 +12,18 @@ mkdir -p /var/log/supervisor
 chown -R www-data:www-data /var/www/html/data/cache
 chmod -R 775 /var/www/html/data/cache
 
+# Regenerate autoloader to ensure paths are correct for Docker environment
+# The autoloader may have been generated from the project root with different paths
+if [ -f "/var/www/html/composer.json" ]; then
+    echo "🔄 Regenerating autoloader for Docker environment..."
+    cd /var/www/html
+    if command -v composer >/dev/null 2>&1; then
+        composer dump-autoload --optimize --no-interaction || echo "⚠️  Autoloader regeneration failed"
+    else
+        echo "⚠️  Composer not available, skipping autoloader regeneration"
+    fi
+fi
+
 # Clear config cache if in development mode
 if [ -f "/var/www/html/data/cache/config-cache.php" ]; then
     echo "🗑️  Clearing config cache..."

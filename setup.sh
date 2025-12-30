@@ -86,11 +86,11 @@ if [ -d "backend/src/SkeletonInstaller" ]; then
     echo -e "${BLUE}  Interactive Package Installer${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    docker run --rm -it -v "$(pwd)/backend:/app" -w /app composer:latest run-script setup-installer
+    docker run --rm -it -v "$(pwd):/app" -w /app composer:latest run-script setup-installer
 
     # Delete composer.lock since composer.json was just modified
     # This forces a fresh lock file generation with the new packages
-    rm -f backend/composer.lock
+    rm -f composer.lock
     INSTALLER_RAN=1
     echo ""
 fi
@@ -99,14 +99,14 @@ fi
 # Always install after installer runs (to get new packages), otherwise only if vendor missing
 if [ $INSTALLER_RAN -eq 1 ] || [ ! -d "backend/vendor" ]; then
     echo -e "${BLUE}Installing selected packages...${NC}"
-    docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
+    docker run --rm -v "$(pwd):/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
     echo -e "${GREEN}Packages installed${NC}"
     echo ""
 fi
 
 # Enable development mode
 echo -e "${BLUE}Enabling development mode...${NC}"
-docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest run-script development-enable --no-interaction 2>/dev/null || true
+docker run --rm -v "$(pwd):/app" -w /app composer:latest run-script development-enable --no-interaction 2>/dev/null || true
 echo -e "${GREEN}Development mode configured${NC}"
 echo ""
 
@@ -222,7 +222,7 @@ if [ $SETUP_FAILED -eq 0 ]; then
     echo -e "${BLUE}Cleaning up setup files...${NC}"
 
     # Remove setup scripts from composer.json using docker
-    docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest \
+    docker run --rm -v "$(pwd):/app" -w /app composer:latest \
         php -r "\$json = json_decode(file_get_contents('composer.json'), true); \
                 unset(\$json['scripts']['post-create-project-cmd']); \
                 unset(\$json['scripts']['setup-installer']); \

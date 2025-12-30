@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="backend/vendor/squizlabs/php_codesniffer/phpcs.xsd">
+
+    <arg name="basepath" value="backend"/>
+    <arg name="cache" value="backend/.phpcs-cache"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="150"/>
+
+    <!-- Show progress and sniff codes -->
+    <arg value="np"/>
+
+    <!-- Paths to check -->
+    <file>backend/config</file>
+    <file>backend/src</file>
+
+    <!-- Exclude patterns -->
+    <exclude-pattern>backend/config/config.php</exclude-pattern>
+    <exclude-pattern>backend/config/routes.php</exclude-pattern>
+    <exclude-pattern>backend/src/*/Tests/*.php$</exclude-pattern>
+    <exclude-pattern>test/*</exclude-pattern>
+
+    <!-- Include all rules from PSR-12 -->
+    <rule ref="PSR12"/>
+
+    <!-- Slevomat Coding Standard Rules -->
+
+    <!-- Trailing commas in arrays -->
+    <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
+
+    <!-- Trailing commas in function calls -->
+    <rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInCall"/>
+
+    <!-- Trailing commas in function declarations -->
+    <rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
+
+    <!-- Enforce declare(strict_types=1) -->
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <properties>
+            <property name="linesCountBeforeDeclare" value="1"/>
+            <property name="spacesCountAroundEqualsSign" value="0"/>
+            <property name="linesCountAfterDeclare" value="1"/>
+        </properties>
+    </rule>
+
+    <!-- Detect unused use statements -->
+    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+        <properties>
+            <property name="searchAnnotations" value="true"/>
+        </properties>
+    </rule>
+
+    <!-- Enforce class member ordering -->
+    <rule ref="SlevomatCodingStandard.Classes.ClassStructure">
+        <properties>
+            <property name="groups" type="array">
+                <!-- Constants -->
+                <element value="uses"/>
+                <element value="enum cases"/>
+                <element value="public constants"/>
+                <element value="protected constants"/>
+                <element value="private constants"/>
+
+                <!-- Properties -->
+                <element value="public properties"/>
+                <element value="public static properties"/>
+                <element value="protected properties"/>
+                <element value="protected static properties"/>
+                <element value="private properties"/>
+                <element value="private static properties"/>
+
+                <!-- Constructor & Magic Methods -->
+                <element value="constructor"/>
+                <element value="static constructors"/>
+                <element value="magic methods"/>
+
+                <!-- Public Methods -->
+                <element value="public static abstract methods"/>
+                <element value="public static final methods"/>
+                <element value="public static methods"/>
+                <element value="public abstract methods"/>
+                <element value="public final methods"/>
+                <element value="public methods"/>
+
+                <!-- Protected Methods -->
+                <element value="protected static abstract methods"/>
+                <element value="protected static final methods"/>
+                <element value="protected static methods"/>
+                <element value="protected abstract methods"/>
+                <element value="protected final methods"/>
+                <element value="protected methods"/>
+
+                <!-- Private Methods -->
+                <element value="private static methods"/>
+                <element value="private methods"/>
+
+                <!-- Destructor -->
+                <element value="destructor"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="Squiz.Classes.ClassFileName.NoMatch">
+        <exclude-pattern>backend/src/ConfigProvider.*.php</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR12.Files.FileHeader.IncorrectOrder">
+        <exclude-pattern>backend/config/pipeline.php</exclude-pattern>
+        <exclude-pattern>backend/src/MezzioInstaller/Resources/config/routes-*.php</exclude-pattern>
+    </rule>
+</ruleset>
+

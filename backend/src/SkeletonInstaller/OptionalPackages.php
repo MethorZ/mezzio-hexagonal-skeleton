@@ -290,6 +290,9 @@ class OptionalPackages
         // Create project structure based on architecture choice
         if ($this->architectureStyle === 'hexagonal') {
             $this->createHexagonalStructure();
+            // Clear config cache after hexagonal structure is created
+            // This ensures the new ConfigProviders can be loaded
+            $this->clearConfigCache();
         } else {
             $this->createMinimalStructure();
         }
@@ -411,7 +414,7 @@ class OptionalPackages
      */
     private function copyConfigFiles(): void
     {
-        $configDir = $this->projectRoot . '/config/autoload';
+        $configDir = $this->projectRoot . '/backend/config/autoload';
         $templateDir = __DIR__ . '/Resources/config';
         $configProviderTemplateDir = __DIR__ . '/Resources/config-provider';
 
@@ -437,7 +440,7 @@ class OptionalPackages
                 $namespace = $config['configProvider'];
                 $namespace = str_replace('\\', '/', $namespace);
                 $namespace = str_replace('::class', '', $namespace);
-                $targetFile = $this->projectRoot . '/src/' . $namespace . '.php';
+                $targetFile = $this->projectRoot . '/backend/src/' . $namespace . '.php';
 
                 // Create directory if it doesn't exist
                 $targetDir = dirname($targetFile);
@@ -474,7 +477,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Registering ConfigProviders...</info>');
 
-        $configFile = $this->projectRoot . '/config/config.php';
+        $configFile = $this->projectRoot . '/backend/config/config.php';
         $content = file_get_contents($configFile);
 
         // Find the insertion point (before Application ConfigProvider)
@@ -537,7 +540,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Registering middleware...</info>');
 
-        $pipelineFile = $this->projectRoot . '/config/pipeline.php';
+        $pipelineFile = $this->projectRoot . '/backend/config/pipeline.php';
         $content = file_get_contents($pipelineFile);
 
         // Add "first" middleware (after error handler comment)
@@ -619,10 +622,10 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Setting up http-dto example...</info>');
 
-        $handlerDir = $this->projectRoot . '/src/App/Application/Handler';
-        $requestDir = $this->projectRoot . '/src/App/Application/Request';
-        $responseDir = $this->projectRoot . '/src/App/Application/Response';
-        $configDir = $this->projectRoot . '/src/App/Application/Config';
+        $handlerDir = $this->projectRoot . '/backend/src/App/Application/Handler';
+        $requestDir = $this->projectRoot . '/backend/src/App/Application/Request';
+        $responseDir = $this->projectRoot . '/backend/src/App/Application/Response';
+        $configDir = $this->projectRoot . '/backend/src/App/Application/Config';
         $templateDir = __DIR__ . '/Resources';
 
         // Create Request and Response directories
@@ -682,7 +685,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Setting up Console example...</info>');
 
-        $commandDir = $this->projectRoot . '/src/App/Application/Command';
+        $commandDir = $this->projectRoot . '/backend/src/App/Application/Command';
         $templateDir = __DIR__ . '/Resources';
 
         // Create Command directory
@@ -715,7 +718,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Setting up Doctrine Migrations...</info>');
 
-        $migrationsDir = $this->projectRoot . '/migrations';
+        $migrationsDir = $this->projectRoot . '/backend/migrations';
         $templateDir = __DIR__ . '/Resources/migrations';
 
         // Create migrations directory
@@ -726,14 +729,14 @@ class OptionalPackages
 
         // Copy migrations configuration files
         $configSource = $templateDir . '/migrations-cli.php';
-        $configTarget = $this->projectRoot . '/migrations.php';
+        $configTarget = $this->projectRoot . '/backend/migrations.php';
         if (file_exists($configSource)) {
             copy($configSource, $configTarget);
             $this->io->write('  Created <info>migrations.php</info>');
         }
 
         $dbSource = $templateDir . '/migrations-db.php';
-        $dbTarget = $this->projectRoot . '/migrations-db.php';
+        $dbTarget = $this->projectRoot . '/backend/migrations-db.php';
         if (file_exists($dbSource)) {
             copy($dbSource, $dbTarget);
             $this->io->write('  Created <info>migrations-db.php</info>');
@@ -778,7 +781,7 @@ class OptionalPackages
         $this->io->write('<info>Setting up OpenAPI Generator...</info>');
 
         // Copy bin/console if it doesn't exist
-        $binDir = $this->projectRoot . '/bin';
+        $binDir = $this->projectRoot . '/backend/bin';
         if (! is_dir($binDir)) {
             mkdir($binDir, 0755, true);
         }
@@ -792,7 +795,7 @@ class OptionalPackages
         }
 
         // Create docs directory
-        $docsDir = $this->projectRoot . '/docs';
+        $docsDir = $this->projectRoot . '/backend/docs';
         if (! is_dir($docsDir)) {
             mkdir($docsDir, 0755, true);
             $this->io->write('  Created <info>docs/</info> directory');
@@ -837,7 +840,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Creating minimal architecture structure...</info>');
 
-        $srcDir = $this->projectRoot . '/src/App/Application';
+        $srcDir = $this->projectRoot . '/backend/src/App/Application';
         $templateDir = __DIR__ . '/Resources/minimal';
 
         // Copy minimal architecture templates
@@ -889,7 +892,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Creating hexagonal architecture structure...</info>');
 
-        $srcDir = $this->projectRoot . '/src';
+        $srcDir = $this->projectRoot . '/backend/src';
         $templateDir = __DIR__ . '/Resources/hexagonal';
 
         // Remove the default App structure
@@ -912,6 +915,9 @@ class OptionalPackages
 
         // Update composer.json autoloading for hexagonal structure
         $this->updateAutoloadingForHexagonal();
+
+        // Update backend/composer.json autoloading as well
+        $this->updateBackendComposerJson();
 
         // Register module ConfigProviders
         $this->registerHexagonalConfigProviders();
@@ -944,6 +950,13 @@ class OptionalPackages
 
     /**
      * Update autoloading for hexagonal structure
+     *
+     * Replaces the default App\ namespace with explicit hexagonal module namespaces:
+     * - Core\ → backend/src/Core/
+     * - HealthCheck\ → backend/src/HealthCheck/
+     * - Article\ → backend/src/Article/
+     *
+     * Note: When adding new modules, you must add their namespace to composer.json.
      */
     private function updateAutoloadingForHexagonal(): void
     {
@@ -952,16 +965,17 @@ class OptionalPackages
             $this->composerDefinition['autoload'] = [];
         }
         if (!isset($this->composerDefinition['autoload']['psr-4'])) {
-            $this->composerDefinition['autoload']['psr-4'] = new \stdClass();
+            $this->composerDefinition['autoload']['psr-4'] = [];
         }
 
-        // Remove App namespace
-        if (isset($this->composerDefinition['autoload']['psr-4']['App\\'])) {
-            unset($this->composerDefinition['autoload']['psr-4']['App\\']);
-        }
+        // Remove default namespaces from skeleton
+        unset($this->composerDefinition['autoload']['psr-4']['App\\']);
+        unset($this->composerDefinition['autoload']['psr-4']['SkeletonInstaller\\']);
 
-        // Add root namespace for hexagonal modules
-        $this->composerDefinition['autoload']['psr-4'][''] = 'src/';
+        // Add explicit hexagonal module namespaces
+        $this->composerDefinition['autoload']['psr-4']['Core\\'] = 'backend/src/Core/';
+        $this->composerDefinition['autoload']['psr-4']['HealthCheck\\'] = 'backend/src/HealthCheck/';
+        $this->composerDefinition['autoload']['psr-4']['Article\\'] = 'backend/src/Article/';
 
         // Ensure autoload-dev exists and has psr-4
         if (!isset($this->composerDefinition['autoload-dev'])) {
@@ -971,15 +985,70 @@ class OptionalPackages
             $this->composerDefinition['autoload-dev']['psr-4'] = new \stdClass();
         }
 
-        // Update test autoloading - keep as object structure
+        // Remove App\Tests\ namespace if it exists (test structure changes with hexagonal)
         if (isset($this->composerDefinition['autoload-dev']['psr-4']['App\\Tests\\'])) {
             unset($this->composerDefinition['autoload-dev']['psr-4']['App\\Tests\\']);
         }
 
-        // If psr-4 is empty after removing App\Tests\, ensure it's still an object
+        // If psr-4 is empty after cleanup, ensure it's still an object for valid JSON
         if (empty((array) $this->composerDefinition['autoload-dev']['psr-4'])) {
             $this->composerDefinition['autoload-dev']['psr-4'] = new \stdClass();
         }
+    }
+
+    /**
+     * Update backend/composer.json with hexagonal module namespaces
+     *
+     * The backend composer.json is used by Docker when regenerating the autoloader,
+     * so it needs to have the same namespaces but with paths relative to backend/src/
+     */
+    private function updateBackendComposerJson(): void
+    {
+        $backendComposerFile = $this->projectRoot . '/backend/composer.json';
+
+        if (!file_exists($backendComposerFile)) {
+            return;
+        }
+
+        $backendComposer = json_decode(file_get_contents($backendComposerFile), true);
+
+        if (!$backendComposer) {
+            $this->io->write('  <warning>Could not read backend/composer.json</warning>');
+            return;
+        }
+
+        // Update autoload section with hexagonal namespaces (paths without backend/ prefix)
+        if (!isset($backendComposer['autoload'])) {
+            $backendComposer['autoload'] = [];
+        }
+        if (!isset($backendComposer['autoload']['psr-4'])) {
+            $backendComposer['autoload']['psr-4'] = [];
+        }
+
+        // Remove default skeleton namespaces
+        unset($backendComposer['autoload']['psr-4']['App\\']);
+        unset($backendComposer['autoload']['psr-4']['SkeletonInstaller\\']);
+
+        // Add hexagonal namespaces (relative to backend/src/)
+        $backendComposer['autoload']['psr-4']['Core\\'] = 'src/Core/';
+        $backendComposer['autoload']['psr-4']['HealthCheck\\'] = 'src/HealthCheck/';
+        $backendComposer['autoload']['psr-4']['Article\\'] = 'src/Article/';
+
+        // Remove test namespaces from autoload-dev
+        if (isset($backendComposer['autoload-dev']['psr-4']['App\\Tests\\'])) {
+            unset($backendComposer['autoload-dev']['psr-4']['App\\Tests\\']);
+        }
+
+        // Ensure autoload-dev psr-4 is an object (not array) for valid JSON
+        if (empty($backendComposer['autoload-dev']['psr-4'])) {
+            $backendComposer['autoload-dev']['psr-4'] = new \stdClass();
+        }
+
+        // Write updated backend/composer.json
+        $json = json_encode($backendComposer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+        file_put_contents($backendComposerFile, $json);
+
+        $this->io->write('  Updated <info>backend/composer.json</info> with hexagonal namespaces');
     }
 
     /**
@@ -987,7 +1056,7 @@ class OptionalPackages
      */
     private function registerHexagonalConfigProviders(): void
     {
-        $configFile = $this->projectRoot . '/config/config.php';
+        $configFile = $this->projectRoot . '/backend/config/config.php';
         $content = file_get_contents($configFile);
 
         // Replace App ConfigProvider with hexagonal module ConfigProviders
@@ -1010,11 +1079,24 @@ class OptionalPackages
     }
 
     /**
+     * Clear config cache to ensure new ConfigProviders can be loaded
+     */
+    private function clearConfigCache(): void
+    {
+        $cacheFile = $this->projectRoot . '/backend/data/cache/config-cache.php';
+
+        if (file_exists($cacheFile)) {
+            unlink($cacheFile);
+            $this->io->write('  <info>✓</info> Cleared config cache');
+        }
+    }
+
+    /**
      * Create logs directory with .gitkeep
      */
     private function createLogsDirectory(): void
     {
-        $logsDir = $this->projectRoot . '/data/logs';
+        $logsDir = $this->projectRoot . '/backend/data/logs';
 
         if (!is_dir($logsDir)) {
             mkdir($logsDir, 0775, true);
@@ -1109,7 +1191,7 @@ class OptionalPackages
         $this->removeFromAutoload();
 
         // Remove installer directory
-        $installerDir = $this->projectRoot . '/src/SkeletonInstaller';
+        $installerDir = $this->projectRoot . '/backend/src/SkeletonInstaller';
         $this->recursiveDelete($installerDir);
 
         // Remove installer scripts from composer.json
@@ -1134,7 +1216,7 @@ class OptionalPackages
             : 'README.minimal.md';
 
         $readmeSource = __DIR__ . '/Resources/' . $readmeFile;
-        $readmeTarget = dirname($this->projectRoot) . '/README.md';
+        $readmeTarget = $this->projectRoot . '/README.md';
 
         if (file_exists($readmeSource) && file_exists($readmeTarget)) {
             copy($readmeSource, $readmeTarget);
@@ -1144,7 +1226,7 @@ class OptionalPackages
         // Copy ARCHITECTURE.md for hexagonal projects
         if ($this->architectureStyle === 'hexagonal') {
             $archSource = __DIR__ . '/Resources/ARCHITECTURE.hexagonal.md';
-            $archTarget = dirname($this->projectRoot) . '/ARCHITECTURE.md';
+            $archTarget = $this->projectRoot . '/ARCHITECTURE.md';
 
             if (file_exists($archSource)) {
                 copy($archSource, $archTarget);

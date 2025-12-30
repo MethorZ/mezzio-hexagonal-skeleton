@@ -19,6 +19,12 @@
 .DS_Store
 Thumbs.db
 
+# Root-level dependencies and artifacts (composer at root)
+/vendor/
+/composer.lock
+/.phpcs-cache
+/.phpunit.cache/
+
 # Dependencies
 /backend/vendor/
 /frontend/node_modules/
