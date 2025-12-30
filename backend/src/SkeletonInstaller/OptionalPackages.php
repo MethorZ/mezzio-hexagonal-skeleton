@@ -1264,8 +1264,32 @@ class OptionalPackages
 
         $this->io->write('  <info>✓</info> Installer removed');
 
+        // For hexagonal projects, remove root composer.json (not needed)
+        if ($this->architectureStyle === 'hexagonal') {
+            $this->removeRootComposerForHexagonal();
+        }
+
         // Replace README with project-specific version
         $this->replaceReadme();
+    }
+
+    /**
+     * Remove root composer.json for hexagonal projects
+     * Hexagonal projects only need backend/composer.json since all PHP code is in backend/
+     */
+    private function removeRootComposerForHexagonal(): void
+    {
+        $rootComposerJson = $this->projectRoot . '/composer.json';
+        $rootComposerLock = $this->projectRoot . '/composer.lock';
+
+        if (file_exists($rootComposerJson)) {
+            unlink($rootComposerJson);
+            $this->io->write('  <info>✓</info> Removed root composer.json (not needed for hexagonal architecture)');
+        }
+
+        if (file_exists($rootComposerLock)) {
+            unlink($rootComposerLock);
+        }
     }
 
     /**
