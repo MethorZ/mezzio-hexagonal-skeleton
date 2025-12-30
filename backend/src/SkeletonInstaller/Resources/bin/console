@@ -14,7 +14,7 @@ $application = new Application('Console', '1.0.0');
 
 // Register OpenAPI command if package is installed
 if (class_exists(GenerateOpenApiCommand::class)) {
-    $application->add(new GenerateOpenApiCommand($container));
+    $application->addCommand(new GenerateOpenApiCommand($container));
 }
 
 $application->run();

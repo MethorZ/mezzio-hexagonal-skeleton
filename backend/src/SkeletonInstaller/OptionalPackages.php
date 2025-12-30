@@ -1259,15 +1259,16 @@ class OptionalPackages
         // Remove installer scripts from composer.json
         $this->removeInstallerScripts();
 
-        // Write final composer.json
-        $this->composerJson->write($this->composerDefinition);
-
-        $this->io->write('  <info>✓</info> Installer removed');
-
-        // For hexagonal projects, remove root composer.json (not needed)
+        // For hexagonal projects, remove root composer.json and quality configs (not needed)
         if ($this->architectureStyle === 'hexagonal') {
             $this->removeRootComposerForHexagonal();
+            $this->removeRootQualityConfigsForHexagonal();
+        } else {
+            // Only write final composer.json for non-hexagonal projects
+            $this->composerJson->write($this->composerDefinition);
         }
+
+        $this->io->write('  <info>✓</info> Installer removed');
 
         // Replace README with project-specific version
         $this->replaceReadme();
@@ -1282,13 +1283,40 @@ class OptionalPackages
         $rootComposerJson = $this->projectRoot . '/composer.json';
         $rootComposerLock = $this->projectRoot . '/composer.lock';
 
+        // Delete root composer.json
         if (file_exists($rootComposerJson)) {
-            unlink($rootComposerJson);
-            $this->io->write('  <info>✓</info> Removed root composer.json (not needed for hexagonal architecture)');
+            if (@unlink($rootComposerJson)) {
+                $this->io->write('  <info>✓</info> Removed root composer.json (use backend/composer.json)');
+            } else {
+                $this->io->write('  <warning>⚠</warning> Could not remove root composer.json');
+            }
         }
 
+        // Delete root composer.lock
         if (file_exists($rootComposerLock)) {
-            unlink($rootComposerLock);
+            @unlink($rootComposerLock);
+        }
+    }
+
+    /**
+     * Remove root quality config files for hexagonal projects
+     * Quality configs should only exist in backend/ since all PHP code is there
+     */
+    private function removeRootQualityConfigsForHexagonal(): void
+    {
+        $configFiles = [
+            'phpcs.xml.dist',
+            'phpstan.neon',
+            'phpunit.xml.dist',
+        ];
+
+        foreach ($configFiles as $file) {
+            $filePath = $this->projectRoot . '/' . $file;
+            if (file_exists($filePath)) {
+                if (@unlink($filePath)) {
+                    $this->io->write("  <info>✓</info> Removed root $file (use backend/$file instead)");
+                }
+            }
         }
     }
 
