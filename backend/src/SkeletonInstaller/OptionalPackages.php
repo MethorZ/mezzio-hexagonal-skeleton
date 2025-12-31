@@ -405,13 +405,8 @@ class OptionalPackages
             }
         }
 
-        // For hexagonal architecture, add packages to backend/composer.json instead of root
-        if ($this->architectureStyle === 'hexagonal') {
-            $this->syncPackagesToBackendComposer();
-        } else {
-            // Only write to root composer.json for non-hexagonal projects
-            $this->composerJson->write($this->composerDefinition);
-        }
+        // Always add packages to backend/composer.json (unified approach for both architectures)
+        $this->syncPackagesToBackendComposer();
     }
 
     /**
@@ -1259,14 +1254,9 @@ class OptionalPackages
         // Remove installer scripts from composer.json
         $this->removeInstallerScripts();
 
-        // For hexagonal projects, remove root composer.json and quality configs (not needed)
-        if ($this->architectureStyle === 'hexagonal') {
-            $this->removeRootComposerForHexagonal();
-            $this->removeRootQualityConfigsForHexagonal();
-        } else {
-            // Only write final composer.json for non-hexagonal projects
-            $this->composerJson->write($this->composerDefinition);
-        }
+        // Always remove root composer.json and quality configs (both architectures use backend/)
+        $this->removeRootComposerJson();
+        $this->removeRootQualityConfigs();
 
         $this->io->write('  <info>✓</info> Installer removed');
 
@@ -1275,10 +1265,10 @@ class OptionalPackages
     }
 
     /**
-     * Remove root composer.json for hexagonal projects
-     * Hexagonal projects only need backend/composer.json since all PHP code is in backend/
+     * Remove root composer.json after installation
+     * Both architectures use backend/composer.json since all PHP code is in backend/
      */
-    private function removeRootComposerForHexagonal(): void
+    private function removeRootComposerJson(): void
     {
         $rootComposerJson = $this->projectRoot . '/composer.json';
         $rootComposerLock = $this->projectRoot . '/composer.lock';
@@ -1299,10 +1289,10 @@ class OptionalPackages
     }
 
     /**
-     * Remove root quality config files for hexagonal projects
+     * Remove root quality config files after installation
      * Quality configs should only exist in backend/ since all PHP code is there
      */
-    private function removeRootQualityConfigsForHexagonal(): void
+    private function removeRootQualityConfigs(): void
     {
         $configFiles = [
             'phpcs.xml.dist',

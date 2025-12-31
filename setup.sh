@@ -100,15 +100,8 @@ fi
 if [ $INSTALLER_RAN -eq 1 ] || [ ! -d "backend/vendor" ]; then
     echo -e "${BLUE}Installing selected packages...${NC}"
 
-    # For hexagonal architecture, run composer from backend directory
-    # (detected by presence of Core module)
-    if [ -d "backend/src/Core" ]; then
-        echo -e "${YELLOW}Hexagonal architecture detected - installing from backend directory${NC}"
-        docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
-    else
-        # For minimal architecture, install from project root
-        docker run --rm -v "$(pwd):/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
-    fi
+    # Always run composer from backend directory (unified approach for both architectures)
+    docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
 
     echo -e "${GREEN}Packages installed${NC}"
     echo ""
@@ -116,7 +109,7 @@ fi
 
 # Enable development mode
 echo -e "${BLUE}Enabling development mode...${NC}"
-docker run --rm -v "$(pwd):/app" -w /app composer:latest run-script development-enable --no-interaction 2>/dev/null || true
+docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest run-script development-enable --no-interaction 2>/dev/null || true
 echo -e "${GREEN}Development mode configured${NC}"
 echo ""
 
