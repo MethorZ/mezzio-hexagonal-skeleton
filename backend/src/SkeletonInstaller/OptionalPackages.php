@@ -405,12 +405,12 @@ class OptionalPackages
             }
         }
 
-        // Write updated composer.json
-        $this->composerJson->write($this->composerDefinition);
-
-        // For hexagonal architecture, also add packages to backend/composer.json
+        // For hexagonal architecture, add packages to backend/composer.json instead of root
         if ($this->architectureStyle === 'hexagonal') {
             $this->syncPackagesToBackendComposer();
+        } else {
+            // Only write to root composer.json for non-hexagonal projects
+            $this->composerJson->write($this->composerDefinition);
         }
     }
 

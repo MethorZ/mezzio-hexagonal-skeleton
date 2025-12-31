@@ -231,15 +231,17 @@ echo ""
 if [ $SETUP_FAILED -eq 0 ]; then
     echo -e "${BLUE}Cleaning up setup files...${NC}"
 
-    # Remove setup scripts from composer.json using docker
-    docker run --rm -v "$(pwd):/app" -w /app composer:latest \
-        php -r "\$json = json_decode(file_get_contents('composer.json'), true); \
-                unset(\$json['scripts']['post-create-project-cmd']); \
-                unset(\$json['scripts']['setup-installer']); \
-                file_put_contents('composer.json', json_encode(\$json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);" \
-        2>/dev/null
+    # Remove setup scripts from composer.json using docker (only if file exists)
+    if [ -f "composer.json" ]; then
+        docker run --rm -v "$(pwd):/app" -w /app composer:latest \
+            php -r "\$json = json_decode(file_get_contents('composer.json'), true); \
+                    unset(\$json['scripts']['post-create-project-cmd']); \
+                    unset(\$json['scripts']['setup-installer']); \
+                    file_put_contents('composer.json', json_encode(\$json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);" \
+            2>/dev/null
 
-    echo -e "   ${GREEN}✓${NC} Removed setup scripts from composer.json"
+        echo -e "   ${GREEN}✓${NC} Removed setup scripts from composer.json"
+    fi
 
     # Remove this setup script
     rm -f setup.sh
