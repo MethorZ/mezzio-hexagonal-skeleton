@@ -234,9 +234,10 @@ class MyHandler implements RequestHandlerInterface
 
 Environment configuration files are in `backend/config/autoload/`:
 
-- `app.development.php` - Development settings
-- `app.production.php` - Production settings
-- `app.testing.php` - Test settings
+- `development.global.php` - Development settings
+- `production.global.php` - Production settings
+- `testing.global.php` - Test settings
+- `local.php` - Local overrides (not committed, copy from `local.php.dist`)
 
 ## Quality Tools
 

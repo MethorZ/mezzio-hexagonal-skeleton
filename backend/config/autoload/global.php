@@ -11,8 +11,9 @@ use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
  * This file is always loaded via config.php pattern matching.
  *
  * For environment-specific settings, use:
- * - app.development.php (dev only)
- * - app.production.php (prod only)
+ * - development.global.php (dev only)
+ * - production.global.php (prod only)
+ * - testing.global.php (test only)
  * - local.php (developer-specific, not committed)
  */
 

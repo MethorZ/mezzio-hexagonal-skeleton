@@ -41,7 +41,7 @@ class OptionalPackages
             'packages'       => [
                 'monolog/monolog' => '^3.9',
             ],
-            'config'         => 'logging.php',
+            'config'         => 'logging.global.php',
             'devOnly'        => false,
             // LoggerInterface factory is now in the main ConfigProvider
             'configProvider' => null,
@@ -52,7 +52,7 @@ class OptionalPackages
             'packages'       => [
                 'symfony/validator' => '^7.2',
             ],
-            'config'         => 'validation.php',
+            'config'         => 'validation.global.php',
             'devOnly'        => false,
             'configProvider' => null, // Library - configured via config file
             'middleware'     => null,
@@ -62,7 +62,7 @@ class OptionalPackages
             'packages'       => [
                 'symfony/cache' => '^7.0',
             ],
-            'config'         => 'caching.php',
+            'config'         => 'caching.global.php',
             'devOnly'        => false,
             'configProvider' => null, // Library - configured via config file
             'middleware'     => null,
@@ -138,7 +138,7 @@ class OptionalPackages
             'packages'       => [
                 'mezzio/mezzio-cors' => '^1.11',
             ],
-            'config'         => 'cors.php',
+            'config'         => 'cors.global.php',
             'devOnly'        => false,
             'configProvider' => '\\Mezzio\\Cors\\ConfigProvider::class',
             'middleware'     => null, // Already conditionally loaded in pipeline.php
@@ -148,7 +148,7 @@ class OptionalPackages
             'packages'       => [
                 'methorz/jwt-auth-middleware' => '^1.1',
             ],
-            'config'         => 'jwt-auth.php',
+            'config'         => 'jwt-auth.global.php',
             'devOnly'        => false,
             'configProvider' => '\\MethorZ\\JwtAuthMiddleware\\ConfigProvider::class',
             // Middleware works without config (passthrough mode) - only validates routes with auth.required = true
@@ -161,7 +161,7 @@ class OptionalPackages
             'packages'       => [
                 'methorz/swift-db' => '^1.0',
             ],
-            'config'         => 'database.php',
+            'config'         => 'database.local.php.dist',
             'devOnly'        => false,
             'configProvider' => '\\MethorZ\\SwiftDb\\ConfigProvider::class',
             'middleware'     => null,
@@ -171,7 +171,7 @@ class OptionalPackages
             'packages'       => [
                 'doctrine/migrations' => '^3.8',
             ],
-            'config'         => 'migrations.php',
+            'config'         => 'migrations.global.php',
             'devOnly'        => false,
             'configProvider' => null, // Configured via config file, no auto-registration
             'middleware'     => null,
