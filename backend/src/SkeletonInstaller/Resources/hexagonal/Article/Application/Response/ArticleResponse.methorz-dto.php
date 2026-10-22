@@ -24,7 +24,8 @@ final readonly class ArticleResponse implements JsonSerializableDto
         public string $createdAt,
         public string $updatedAt,
         public ?string $publishedAt = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Create from domain entity
@@ -70,4 +71,3 @@ final readonly class ArticleResponse implements JsonSerializableDto
         return 200;
     }
 }
-

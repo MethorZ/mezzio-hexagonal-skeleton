@@ -21,7 +21,8 @@ final readonly class HealthCheckResponse implements JsonSerializableDto
         public string $status,
         public string $message,
         public ?array $details = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, mixed>
@@ -46,4 +47,3 @@ final readonly class HealthCheckResponse implements JsonSerializableDto
         return 200; // OK
     }
 }
-

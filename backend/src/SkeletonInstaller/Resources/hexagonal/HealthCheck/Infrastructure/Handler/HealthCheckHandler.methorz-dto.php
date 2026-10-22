@@ -31,7 +31,8 @@ final readonly class HealthCheckHandler implements DtoHandlerInterface
 {
     public function __construct(
         private HealthCheckService $healthCheckService,
-    ) {}
+    ) {
+    }
 
     /**
      * Handle health check request
@@ -48,4 +49,3 @@ final readonly class HealthCheckHandler implements DtoHandlerInterface
         return $this->healthCheckService->check($dto);
     }
 }
-

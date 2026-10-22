@@ -53,7 +53,7 @@ final class Version20250101000000 extends AbstractMigration
                 INDEX idx_status (status),
                 INDEX idx_created_at (created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-            SQL
+            SQL,
         );
     }
 
@@ -63,4 +63,3 @@ final class Version20250101000000 extends AbstractMigration
         $this->addSql('DROP TABLE articles');
     }
 }
-

@@ -24,6 +24,14 @@ final class InMemoryArticleRepository implements ArticleRepositoryInterface
      */
     private static array $articles = [];
 
+    /**
+     * Clear all articles (useful for testing)
+     */
+    public static function clear(): void
+    {
+        self::$articles = [];
+    }
+
     public function save(Article $article): void
     {
         self::$articles[$article->getId()->getValue()] = $article;
@@ -64,13 +72,4 @@ final class InMemoryArticleRepository implements ArticleRepositoryInterface
     {
         return isset(self::$articles[$id->getValue()]);
     }
-
-    /**
-     * Clear all articles (useful for testing)
-     */
-    public static function clear(): void
-    {
-        self::$articles = [];
-    }
 }
-

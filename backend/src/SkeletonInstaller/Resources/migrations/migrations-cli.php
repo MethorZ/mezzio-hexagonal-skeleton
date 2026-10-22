@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Doctrine Migrations Configuration
  *
@@ -15,6 +13,8 @@ declare(strict_types=1);
  *   vendor/bin/doctrine-migrations version --add xxx  - Mark migration as executed
  *   vendor/bin/doctrine-migrations version --delete xxx - Mark migration as not executed
  */
+
+declare(strict_types=1);
 
 // Return configuration array for Doctrine Migrations
 return [

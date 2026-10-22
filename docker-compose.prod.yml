@@ -30,7 +30,7 @@ services:
       - --slow_query_log=1
       - --long_query_time=2
 
-  # PHP 8.4 Backend - Production
+  # PHP 8.5 Backend - Production
   backend:
     build:
       context: ./docker/backend

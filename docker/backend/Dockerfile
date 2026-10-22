@@ -1,7 +1,7 @@
 # ============================================
-# Development Stage - PHP 8.4 FPM + Nginx
+# Development Stage - PHP 8.5 FPM + Nginx
 # ============================================
-FROM php:8.4-fpm AS development
+FROM php:8.5.12-fpm-trixie AS development
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -25,7 +25,6 @@ RUN docker-php-ext-install \
     exif \
     pcntl \
     bcmath \
-    opcache \
     zip
 
 # Install PCOV for code coverage (development only)
@@ -45,7 +44,7 @@ RUN { \
     } > /usr/local/etc/php/conf.d/opcache-dev.ini
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 # Configure Nginx
 COPY nginx.conf /etc/nginx/sites-available/default
@@ -75,9 +74,9 @@ EXPOSE 80
 CMD ["/usr/local/bin/start.sh"]
 
 # ============================================
-# Production Stage - PHP 8.4 FPM + Nginx
+# Production Stage - PHP 8.5 FPM + Nginx
 # ============================================
-FROM php:8.4-fpm AS production
+FROM php:8.5.12-fpm-trixie AS production
 
 # Install system dependencies (minimal for production)
 RUN apt-get update && apt-get install -y \
@@ -96,7 +95,6 @@ RUN docker-php-ext-install \
     exif \
     pcntl \
     bcmath \
-    opcache \
     zip
 
 # Configure OPcache for production
@@ -108,11 +106,12 @@ RUN { \
     echo 'opcache.max_accelerated_files=20000'; \
     echo 'opcache.revalidate_freq=60'; \
     echo 'opcache.validate_timestamps=0'; \
-    echo 'opcache.fast_shutdown=1'; \
+    echo 'session.upload_progress.enabled=0'; \
+    echo 'fatal_error_backtraces=0'; \
     } > /usr/local/etc/php/conf.d/opcache-prod.ini
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 # Configure Nginx (Production with restricted CORS)
 COPY nginx-prod.conf /etc/nginx/sites-available/default

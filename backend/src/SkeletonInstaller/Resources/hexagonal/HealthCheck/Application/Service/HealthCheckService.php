@@ -44,4 +44,3 @@ final readonly class HealthCheckService
         return '1.0.0';
     }
 }
-

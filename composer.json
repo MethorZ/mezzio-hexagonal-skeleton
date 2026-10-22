@@ -1,6 +1,6 @@
 {
     "name": "methorz/mezzio-hexagonal-skeleton",
-    "description": "Mezzio skeleton with architecture choice: minimal or hexagonal (DDD). Includes optional packages for modern PHP 8.4+ REST API development.",
+    "description": "Mezzio skeleton with architecture choice: minimal or hexagonal (DDD). Includes optional packages for modern PHP 8.5.12+ REST API development.",
     "type": "project",
     "license": "MIT",
     "keywords": [
@@ -21,7 +21,7 @@
             "laminas/laminas-component-installer": true
         },
         "platform": {
-            "php": "8.4.99"
+            "php": "8.5.12"
         }
     },
     "minimum-stability": "dev",
@@ -39,24 +39,24 @@
         }
     },
     "require": {
-        "php": "^8.4",
-        "laminas/laminas-config-aggregator": "^1.18",
-        "laminas/laminas-diactoros": "^3.8",
-        "laminas/laminas-servicemanager": "^4.0",
-        "mezzio/mezzio": "^3.25",
-        "mezzio/mezzio-fastroute": "^3.11",
+        "php": "~8.5.12",
+        "laminas/laminas-config-aggregator": "^1.20",
+        "laminas/laminas-diactoros": "^3.9",
+        "laminas/laminas-servicemanager": "^4.5",
+        "mezzio/mezzio": "^3.28",
+        "mezzio/mezzio-fastroute": "^3.14",
         "mezzio/mezzio-helpers": "^5.20"
     },
     "require-dev": {
-        "laminas/laminas-development-mode": "^3.14",
-        "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^12.0",
-        "roave/security-advisories": "dev-master",
-        "slevomat/coding-standard": "^8.25",
-        "squizlabs/php_codesniffer": "^4.0"
+        "laminas/laminas-development-mode": "^3.15",
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^13.4",
+        "roave/security-advisories": "dev-latest",
+        "slevomat/coding-standard": "^8.31",
+        "squizlabs/php_codesniffer": "^4.0.1"
     },
     "suggest": {
-        "methorz/swift-db": "High-performance MySQL database layer with Laravel-style query builder (^1.0)"
+        "methorz/swift-db": "High-performance MySQL database layer with Laravel-style query builder (^1.3)"
     },
     "autoload": {
         "psr-4": {

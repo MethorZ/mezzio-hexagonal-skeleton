@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace HealthCheck\Application\Response;
+namespace App\Application\Response;
 
 use MethorZ\Dto\Response\JsonSerializableDto;
 
@@ -21,7 +21,8 @@ final readonly class HealthCheckResponse implements JsonSerializableDto
         public string $timestamp,
         public ?string $version = null,
         public array $details = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, mixed>
@@ -49,4 +50,3 @@ final readonly class HealthCheckResponse implements JsonSerializableDto
         return 200;
     }
 }
-

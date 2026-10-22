@@ -31,4 +31,3 @@ enum ArticleStatus: string
         return $this !== self::ARCHIVED;
     }
 }
-

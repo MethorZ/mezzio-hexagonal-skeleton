@@ -12,6 +12,7 @@ use Article\Application\Response\ArticleResponse;
 use Article\Domain\Entity\Article;
 use Article\Domain\Enum\ArticleStatus;
 use Article\Domain\Exception\ArticleNotFoundException;
+use Article\Domain\Exception\InvalidArticleException;
 use Article\Domain\Port\ArticleRepositoryInterface;
 use Article\Domain\ValueObject\ArticleId;
 use Article\Domain\ValueObject\Author;
@@ -29,7 +30,8 @@ final readonly class ArticleService
 {
     public function __construct(
         private ArticleRepositoryInterface $articleRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * Create a new article
@@ -105,7 +107,7 @@ final readonly class ArticleService
     public function list(?string $status = null): ArticleListResponse
     {
         if ($status !== null) {
-            $statusEnum = ArticleStatus::from($status);
+            $statusEnum = ArticleStatus::tryFrom($status) ?? throw InvalidArticleException::invalidStatus($status);
             $articles = $this->articleRepository->findByStatus($statusEnum);
         } else {
             $articles = $this->articleRepository->findAll();
@@ -158,4 +160,3 @@ final readonly class ArticleService
         return ArticleResponse::fromEntity($article);
     }
 }
-

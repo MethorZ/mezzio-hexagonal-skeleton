@@ -102,7 +102,7 @@
     </rule>
 
     <rule ref="Squiz.Classes.ClassFileName.NoMatch">
-        <exclude-pattern>backend/src/ConfigProvider.*.php</exclude-pattern>
+        <exclude-pattern>backend/src/SkeletonInstaller/Resources/.+/[^/.]+\.[a-z-]+\.php$</exclude-pattern>
     </rule>
 
     <rule ref="PSR12.Files.FileHeader.IncorrectOrder">

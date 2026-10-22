@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Doctrine Migrations Database Connection Configuration
  *
  * This file provides the database connection for Doctrine Migrations.
  * It's automatically loaded by the migrations CLI.
  */
+
+declare(strict_types=1);
 
 use Doctrine\DBAL\DriverManager;
 
@@ -39,4 +39,3 @@ $connectionParams = [
 ];
 
 return DriverManager::getConnection($connectionParams);
-

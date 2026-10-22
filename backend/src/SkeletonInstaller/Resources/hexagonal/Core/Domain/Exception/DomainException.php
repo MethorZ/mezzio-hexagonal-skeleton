@@ -76,4 +76,3 @@ class DomainException extends RuntimeException
         return 400;
     }
 }
-

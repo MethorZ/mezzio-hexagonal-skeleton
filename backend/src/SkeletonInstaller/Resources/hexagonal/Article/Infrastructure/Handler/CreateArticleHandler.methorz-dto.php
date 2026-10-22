@@ -4,29 +4,28 @@ declare(strict_types=1);
 
 namespace Article\Infrastructure\Handler;
 
-use Article\Application\Request\GetArticleRequest;
+use Article\Application\Request\CreateArticleRequest;
 use Article\Application\Service\ArticleService;
 use MethorZ\Dto\Handler\DtoHandlerInterface;
 use MethorZ\Dto\Response\JsonSerializableDto;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Get Article Handler (Inbound Adapter)
+ * Create Article Handler (Inbound Adapter)
  *
- * Handles GET /articles/{id} requests to retrieve a single article.
+ * Handles POST /articles requests to create new articles.
  */
-final readonly class GetArticleHandler implements DtoHandlerInterface
+final readonly class CreateArticleHandler implements DtoHandlerInterface
 {
     public function __construct(
         private ArticleService $articleService,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         ServerRequestInterface $request,
-        GetArticleRequest $dto,
+        CreateArticleRequest $dto,
     ): JsonSerializableDto {
-        // The $dto->id is automatically populated from the {id} route parameter
-        return $this->articleService->get($dto);
+        return $this->articleService->create($dto);
     }
 }
-

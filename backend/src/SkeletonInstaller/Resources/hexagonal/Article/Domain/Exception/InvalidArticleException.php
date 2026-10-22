@@ -13,6 +13,16 @@ use Core\Domain\Exception\DomainException;
  */
 final class InvalidArticleException extends DomainException
 {
+    public static function invalidId(string $id): self
+    {
+        return new self("Article ID '{$id}' is not a valid UUID");
+    }
+
+    public static function invalidStatus(string $status): self
+    {
+        return new self("Article status '{$status}' is not one of: draft, published, archived");
+    }
+
     public static function titleTooShort(int $minLength): self
     {
         return new self("Article title must be at least {$minLength} characters long");
@@ -48,4 +58,3 @@ final class InvalidArticleException extends DomainException
         return new self('Cannot edit an archived article');
     }
 }
-

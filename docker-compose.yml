@@ -1,5 +1,5 @@
 services:
-  # PHP 8.4 Backend (Mezzio Application)
+  # PHP 8.5 Backend (Mezzio Application)
   backend:
     build:
       context: ./docker/backend

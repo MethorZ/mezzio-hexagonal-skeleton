@@ -1,6 +1,6 @@
 # Project
 
-> Mezzio application with PHP 8.4+ using Hexagonal Architecture (Ports & Adapters)
+> Mezzio application with PHP 8.5.12+ using Hexagonal Architecture (Ports & Adapters)
 
 ## Quick Start
 
@@ -651,11 +651,18 @@ class DbArticleRepositoryTest extends TestCase
 
 ### Using `methorz/http-dto`
 
-All handlers in this architecture use `DtoHandlerInterface` for automatic request/response handling.
+When `methorz/http-dto` was selected during installation, the HealthCheck handler and the
+Create/Get/Update article handlers implement `DtoHandlerInterface` for automatic request/response
+handling. Without it, the installer generates plain PSR-15 handlers that build the request objects
+themselves (JSON bodies are read via `Article\Infrastructure\Http\JsonBody`).
+
+`#[Assert\*]` attributes on the request DTOs are only generated when Symfony Validator was selected.
+The domain value objects enforce the same rules either way.
 
 ### Using `methorz/swift-db`
 
-Use `DbArticleRepository` instead of `InMemoryArticleRepository`:
+`DbArticleRepository` is only generated when `methorz/swift-db` was selected during installation.
+Use it instead of `InMemoryArticleRepository`:
 
 1. Update `Article/Application/Config/ConfigProvider.php`:
 ```php

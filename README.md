@@ -1,9 +1,9 @@
 # Mezzio Skeleton with Architecture Choice
 
-> Mezzio skeleton with architecture choice: **Minimal** or **Hexagonal (DDD)**. Modern PHP 8.4+ development with optional packages.
+> Mezzio skeleton with architecture choice: **Minimal** or **Hexagonal (DDD)**. Modern PHP 8.5.12+ development with optional packages.
 
-[![PHP Version](https://img.shields.io/badge/php-%5E8.4-blue)](https://www.php.net/)
-[![Mezzio](https://img.shields.io/badge/mezzio-%5E3.25-purple)](https://docs.mezzio.dev/)
+[![PHP Version](https://img.shields.io/badge/php-~8.5.12-blue)](https://www.php.net/)
+[![Mezzio](https://img.shields.io/badge/mezzio-%5E3.28-purple)](https://docs.mezzio.dev/)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
@@ -11,11 +11,11 @@
 
 A modern Mezzio skeleton that lets you **choose your architecture** during setup:
 
-- **PHP 8.4** with strict types
+- **PHP 8.5.12+** with strict types
 - **Mezzio Framework** for PSR-15 middleware
 - **Laminas ServiceManager** for dependency injection
 - **FastRoute** for high-performance routing
-- **Docker** ready with PHP 8.4 + Nginx
+- **Docker** ready with PHP 8.5 + Nginx
 - **Quality tools**: PHPStan (level 9), PHP_CodeSniffer, PHPUnit
 - **Architecture choice**: Minimal or Hexagonal (DDD)
 
@@ -54,11 +54,11 @@ During the interactive setup, you'll choose between two architectural approaches
 composer create-project methorz/mezzio-hexagonal-skeleton my-project
 ```
 
-> **Note:** If you have PHP < 8.4 on your host machine, use:
+> **Note:** If you have PHP < 8.5.12 on your host machine, use:
 > ```bash
-> composer create-project methorz/mezzio-hexagonal-skeleton my-project --ignore-platform-reqs
+> composer create-project methorz/mezzio-hexagonal-skeleton my-project --ignore-platform-req=php
 > ```
-> This is safe because everything runs in Docker with PHP 8.4.
+> This is safe because everything runs in Docker with PHP 8.5.12.
 
 That's it! The setup will automatically:
 - Run the interactive package installer
@@ -86,7 +86,7 @@ The setup process is fully automated:
 2. **Interactive package selection** - Choose which optional packages to install (Monolog, Validator, Database, etc.)
 3. **Package configuration** - ConfigProviders and middleware automatically registered
 4. **Dependency installation** - Selected packages installed via Docker
-5. **Docker image building** - Custom PHP 8.4 + Nginx images built
+5. **Docker image building** - Custom PHP 8.5 + Nginx images built
 6. **Container startup** - Application containers started
 7. **Development mode** - Development environment configured
 8. **Verification & cleanup** - Setup verified, then setup files automatically removed
@@ -258,7 +258,7 @@ This runs: code style check → static analysis → unit tests (all inside Docke
 
 ## Docker Services
 
-- **Backend**: PHP 8.4-FPM + Nginx (Port 8081)
+- **Backend**: PHP 8.5-FPM + Nginx (Port 8081)
 - **Database**: MySQL 8.0 (Port 33060) - optional
 
 ### Container Naming

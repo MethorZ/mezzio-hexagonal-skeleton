@@ -39,22 +39,18 @@ namespace Core\Domain\ValueObject;
 abstract readonly class BaseValueObject
 {
     /**
-     * Validate the value object
-     *
-     * Override this method to add validation rules.
-     * Throw a domain exception if validation fails.
+     * Get string representation
      */
-    protected function validate(): void
+    public function __toString(): string
     {
-        // Override in subclasses to add validation
-    }
+        $values = $this->getEqualityValues();
 
-    /**
-     * Get values used for equality comparison
-     *
-     * @return array<mixed> Values that define this VO's identity
-     */
-    abstract protected function getEqualityValues(): array;
+        if (count($values) === 1) {
+            return (string) $values[0];
+        }
+
+        return json_encode($values, JSON_THROW_ON_ERROR);
+    }
 
     /**
      * Check equality with another value object
@@ -69,17 +65,20 @@ abstract readonly class BaseValueObject
     }
 
     /**
-     * Get string representation
+     * Get values used for equality comparison
+     *
+     * @return list<scalar|null> Values that define this VO's identity
      */
-    public function __toString(): string
+    abstract protected function getEqualityValues(): array;
+
+    /**
+     * Validate the value object
+     *
+     * Override this method to add validation rules.
+     * Throw a domain exception if validation fails.
+     */
+    protected function validate(): void
     {
-        $values = $this->getEqualityValues();
-
-        if (count($values) === 1) {
-            return (string) $values[0];
-        }
-
-        return json_encode($values, JSON_THROW_ON_ERROR);
+        // Override in subclasses to add validation
     }
 }
-

@@ -11,7 +11,6 @@
 
 declare(strict_types=1);
 
-use Fig\Http\Message\RequestMethodInterface;
 use Mezzio\Cors\Configuration\ConfigurationInterface;
 
 return [
@@ -26,15 +25,8 @@ return [
             fn($origin) => $origin !== '',
         ),
 
-        // Allowed HTTP methods
-        'allowed_methods' => [
-            RequestMethodInterface::METHOD_GET,
-            RequestMethodInterface::METHOD_POST,
-            RequestMethodInterface::METHOD_PUT,
-            RequestMethodInterface::METHOD_PATCH,
-            RequestMethodInterface::METHOD_DELETE,
-            RequestMethodInterface::METHOD_OPTIONS,
-        ],
+        // Allowed methods are not configurable here: mezzio-cors derives them
+        // from each route's 'allowed_methods'.
 
         // Allowed request headers
         'allowed_headers' => [
@@ -57,4 +49,3 @@ return [
         ],
     ],
 ];
-

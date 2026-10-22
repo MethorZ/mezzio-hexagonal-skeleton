@@ -13,4 +13,3 @@ return [
         'header_prefix' => $_ENV['JWT_HEADER_PREFIX'] ?? 'Bearer',
     ],
 ];
-

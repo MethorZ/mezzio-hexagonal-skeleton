@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Response;
+namespace HealthCheck\Application\Response;
 
-use MethorZ\Dto\Response\JsonSerializableDto;
+use JsonSerializable;
 
 /**
  * Health Check Response DTO
  *
- * Response object automatically serialized to JSON by methorz/http-dto.
+ * Response object serialized to JSON by the inbound adapter.
  */
-final readonly class HealthCheckResponse implements JsonSerializableDto
+final readonly class HealthCheckResponse implements JsonSerializable
 {
     /**
      * @param array<string, mixed> $details
@@ -21,7 +21,8 @@ final readonly class HealthCheckResponse implements JsonSerializableDto
         public string $timestamp,
         public ?string $version = null,
         public array $details = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, mixed>
@@ -49,4 +50,3 @@ final readonly class HealthCheckResponse implements JsonSerializableDto
         return 200;
     }
 }
-

@@ -20,14 +20,14 @@ final readonly class ListArticlesHandler implements RequestHandlerInterface
 {
     public function __construct(
         private ArticleService $articleService,
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $queryParams = $request->getQueryParams();
-        $status = $queryParams['status'] ?? null;
+        $status = $request->getQueryParams()['status'] ?? null;
 
-        $response = $this->articleService->list($status);
+        $response = $this->articleService->list(is_string($status) ? $status : null);
 
         return new JsonResponse(
             $response->jsonSerialize(),
@@ -35,4 +35,3 @@ final readonly class ListArticlesHandler implements RequestHandlerInterface
         );
     }
 }
-

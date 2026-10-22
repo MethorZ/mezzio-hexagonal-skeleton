@@ -158,4 +158,3 @@ final class Article
         return $this->status->isPublished();
     }
 }
-

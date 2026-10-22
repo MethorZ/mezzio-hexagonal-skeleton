@@ -42,7 +42,7 @@ class ConfigProvider
         return [
             'aliases' => [
                 // Use InMemoryArticleRepository by default
-                // Switch to DbArticleRepository if you want database persistence
+                // Switch to DbArticleRepository (requires methorz/swift-db) for database persistence
                 ArticleRepositoryInterface::class => InMemoryArticleRepository::class,
             ],
             'factories' => [
@@ -54,8 +54,8 @@ class ConfigProvider
     /**
      * Get route configuration
      *
-     * All handlers are automatically wrapped by DtoHandlerAbstractFactory from methorz/http-dto.
-     * Just use the class name directly - no need for DtoHandlerWrapperFactory::class . '::wrap:'.
+     * Handlers implementing DtoHandlerInterface (methorz/http-dto) are wrapped automatically by
+     * its DtoHandlerAbstractFactory; plain PSR-15 handlers are used as they are.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -95,4 +95,3 @@ class ConfigProvider
         ];
     }
 }
-

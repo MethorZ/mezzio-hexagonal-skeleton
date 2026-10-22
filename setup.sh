@@ -79,6 +79,9 @@ else
 fi
 echo ""
 
+# Build installer image (PHP 8.5.12, Composer 2.10.3, pdo_mysql)
+docker build -t methorz-skeleton-installer:8.5.12 docker/installer
+
 # Check if installer needs to run
 INSTALLER_RAN=0
 if [ -d "backend/src/SkeletonInstaller" ]; then
@@ -86,7 +89,7 @@ if [ -d "backend/src/SkeletonInstaller" ]; then
     echo -e "${BLUE}  Interactive Package Installer${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    docker run --rm -it -v "$(pwd):/app" -w /app composer:latest run-script setup-installer
+    docker run --rm -it -v "$(pwd):/app" -w /app --entrypoint composer methorz-skeleton-installer:8.5.12 run-script setup-installer
 
     # Delete composer.lock since composer.json was just modified
     # This forces a fresh lock file generation with the new packages
@@ -101,7 +104,7 @@ if [ $INSTALLER_RAN -eq 1 ] || [ ! -d "backend/vendor" ]; then
     echo -e "${BLUE}Installing selected packages...${NC}"
 
     # Always run composer from backend directory (unified approach for both architectures)
-    docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest install --no-interaction --ignore-platform-reqs 2>&1 | grep -v "^$"
+    docker run --rm -v "$(pwd)/backend:/app" -w /app --entrypoint composer methorz-skeleton-installer:8.5.12 install --no-interaction 2>&1 | grep -v "^$"
 
     echo -e "${GREEN}Packages installed${NC}"
     echo ""
@@ -109,7 +112,7 @@ fi
 
 # Enable development mode
 echo -e "${BLUE}Enabling development mode...${NC}"
-docker run --rm -v "$(pwd)/backend:/app" -w /app composer:latest run-script development-enable --no-interaction 2>/dev/null || true
+docker run --rm -v "$(pwd)/backend:/app" -w /app --entrypoint composer methorz-skeleton-installer:8.5.12 run-script development-enable --no-interaction 2>/dev/null || true
 echo -e "${GREEN}Development mode configured${NC}"
 echo ""
 
@@ -226,8 +229,8 @@ if [ $SETUP_FAILED -eq 0 ]; then
 
     # Remove setup scripts from composer.json using docker (only if file exists)
     if [ -f "composer.json" ]; then
-        docker run --rm -v "$(pwd):/app" -w /app composer:latest \
-            php -r "\$json = json_decode(file_get_contents('composer.json'), true); \
+        docker run --rm -v "$(pwd):/app" -w /app --entrypoint php methorz-skeleton-installer:8.5.12 \
+            -r "\$json = json_decode(file_get_contents('composer.json'), true); \
                     unset(\$json['scripts']['post-create-project-cmd']); \
                     unset(\$json['scripts']['setup-installer']); \
                     file_put_contents('composer.json', json_encode(\$json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);" \

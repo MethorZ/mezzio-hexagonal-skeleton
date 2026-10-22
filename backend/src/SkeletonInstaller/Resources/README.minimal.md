@@ -1,6 +1,6 @@
 # Project
 
-> Mezzio application with PHP 8.4+ using minimal architecture
+> Mezzio application with PHP 8.5.12+ using minimal architecture
 
 ## Quick Start
 
@@ -496,6 +496,9 @@ php bin/console app:your-command
 ## Package-Specific Guides
 
 ### Using `methorz/http-dto`
+
+If `methorz/http-dto` was not selected during installation, the generated `HealthCheckHandler`
+is a plain PSR-15 handler that builds its request object and JSON response itself.
 
 The `methorz/http-dto` package provides automatic request/response handling:
 

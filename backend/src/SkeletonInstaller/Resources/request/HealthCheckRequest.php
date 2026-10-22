@@ -19,6 +19,6 @@ final readonly class HealthCheckRequest
     public function __construct(
         #[Assert\Type('bool')]
         public bool $detailed = false,
-    ) {}
+    ) {
+    }
 }
-

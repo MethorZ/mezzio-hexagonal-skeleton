@@ -19,7 +19,8 @@ final readonly class ArticleListResponse implements JsonSerializableDto
     public function __construct(
         public array $articles,
         public int $total,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, mixed>
@@ -40,4 +41,3 @@ final readonly class ArticleListResponse implements JsonSerializableDto
         return 200;
     }
 }
-

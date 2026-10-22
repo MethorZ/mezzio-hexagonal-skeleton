@@ -16,6 +16,7 @@ use function file_get_contents;
 use function file_put_contents;
 use function is_dir;
 use function mkdir;
+use function preg_match;
 use function rmdir;
 use function scandir;
 use function sprintf;
@@ -34,23 +35,30 @@ class OptionalPackages
 {
     public const INSTALL_NONE = 1;
 
+    /**
+     * Packages the hexagonal templates use directly, regardless of the selected groups
+     */
+    private const HEXAGONAL_PACKAGES = [
+        'ramsey/uuid' => '^4.9',
+    ];
+
     private const PACKAGE_GROUPS = [
         // === Core Infrastructure ===
         'logging' => [
             'question'       => 'Install Monolog? (application logging - log errors, debug info to files)',
             'packages'       => [
-                'monolog/monolog' => '^3.9',
+                'monolog/monolog' => '^3.12',
             ],
             'config'         => 'logging.global.php',
             'devOnly'        => false,
-            // LoggerInterface factory is now in the main ConfigProvider
+            // LoggerInterface factory is registered by logging.global.php
             'configProvider' => null,
             'middleware'     => null,
         ],
         'validation' => [
             'question'       => 'Install Symfony Validator? (validate request data with #[Assert\\*] attributes)',
             'packages'       => [
-                'symfony/validator' => '^7.2',
+                'symfony/validator' => '^7.4 || ^8.1',
             ],
             'config'         => 'validation.global.php',
             'devOnly'        => false,
@@ -60,7 +68,7 @@ class OptionalPackages
         'caching' => [
             'question'       => 'Install Symfony Cache? (application-level caching - Redis, APCu, filesystem)',
             'packages'       => [
-                'symfony/cache' => '^7.0',
+                'symfony/cache' => '^7.4 || ^8.1',
             ],
             'config'         => 'caching.global.php',
             'devOnly'        => false,
@@ -70,7 +78,7 @@ class OptionalPackages
         'console' => [
             'question'       => 'Install Symfony Console? (build CLI commands for your application)',
             'packages'       => [
-                'symfony/console' => '^7.0',
+                'symfony/console' => '^7.4 || ^8.1',
             ],
             'config'         => null,
             'devOnly'        => false,
@@ -81,7 +89,7 @@ class OptionalPackages
         'methorz-dto' => [
             'question'       => 'Install methorz/http-dto? (auto-map JSON requests to typed PHP objects, zero-config)',
             'packages'       => [
-                'methorz/http-dto' => '^2.1',
+                'methorz/http-dto' => '^2.2.1',
             ],
             'config'         => null,
             'devOnly'        => false,
@@ -92,7 +100,7 @@ class OptionalPackages
         'methorz-problem-details' => [
             'question'       => 'Install methorz/http-problem-details? (error handler middleware - RFC 7807 JSON responses)',
             'packages'       => [
-                'methorz/http-problem-details' => 'dev-main',
+                'methorz/http-problem-details' => '^1.1',
             ],
             'config'         => null,
             'devOnly'        => false,
@@ -103,7 +111,7 @@ class OptionalPackages
         'methorz-request-logger' => [
             'question'       => 'Install methorz/http-request-logger? (middleware to log all HTTP requests/responses)',
             'packages'       => [
-                'methorz/http-request-logger' => '^1.1',
+                'methorz/http-request-logger' => '^1.2.1',
             ],
             'config'         => null,
             'devOnly'        => false,
@@ -114,7 +122,7 @@ class OptionalPackages
         'methorz-cache' => [
             'question'       => 'Install methorz/http-cache-middleware? (HTTP caching with ETag/304 responses)',
             'packages'       => [
-                'methorz/http-cache-middleware' => 'dev-main',
+                'methorz/http-cache-middleware' => '^1.1',
             ],
             'config'         => null,
             'devOnly'        => false,
@@ -125,7 +133,7 @@ class OptionalPackages
         'methorz-openapi' => [
             'question'       => 'Install methorz/openapi-generator? (auto-generate OpenAPI/Swagger docs from code)',
             'packages'       => [
-                'methorz/openapi-generator' => 'dev-main',
+                'methorz/openapi-generator' => '^1.1',
             ],
             'config'         => 'openapi.yaml',
             'devOnly'        => false,
@@ -136,7 +144,7 @@ class OptionalPackages
         'cors' => [
             'question'       => 'Install Mezzio CORS? (enable Cross-Origin Resource Sharing for API endpoints)',
             'packages'       => [
-                'mezzio/mezzio-cors' => '^1.11',
+                'mezzio/mezzio-cors' => '^1.16',
             ],
             'config'         => 'cors.global.php',
             'devOnly'        => false,
@@ -146,7 +154,7 @@ class OptionalPackages
         'jwt-auth' => [
             'question'       => 'Install methorz/jwt-auth-middleware? (JWT auth with HS256/RS256, zero-config)',
             'packages'       => [
-                'methorz/jwt-auth-middleware' => '^1.1',
+                'methorz/jwt-auth-middleware' => '^1.2.1',
             ],
             'config'         => 'jwt-auth.global.php',
             'devOnly'        => false,
@@ -159,7 +167,7 @@ class OptionalPackages
         'swift-db' => [
             'question'       => 'Install methorz/swift-db? (high-performance MySQL layer with Laravel-style query builder)',
             'packages'       => [
-                'methorz/swift-db' => '^1.0',
+                'methorz/swift-db' => '^1.3',
             ],
             'config'         => 'database.local.php.dist',
             'devOnly'        => false,
@@ -169,7 +177,7 @@ class OptionalPackages
         'migrations' => [
             'question'       => 'Install Doctrine Migrations? (database schema versioning and migration management)',
             'packages'       => [
-                'doctrine/migrations' => '^3.8',
+                'doctrine/migrations' => '^3.9',
             ],
             'config'         => 'migrations.global.php',
             'devOnly'        => false,
@@ -385,12 +393,19 @@ class OptionalPackages
      */
     private function applyPackageSelections(): void
     {
-        if ($this->selectedPackages === []) {
+        $architecturePackages = $this->architectureStyle === 'hexagonal' ? self::HEXAGONAL_PACKAGES : [];
+
+        if ($this->selectedPackages === [] && $architecturePackages === []) {
             return;
         }
 
         $this->io->write('');
         $this->io->write('<info>Updating composer.json with selected packages...</info>');
+
+        foreach ($architecturePackages as $package => $version) {
+            $this->composerDefinition['require'][$package] = $version;
+            $this->io->write(sprintf('  Added <info>%s</info>: %s', $package, $version));
+        }
 
         foreach ($this->selectedPackages as $groupName) {
             $config = self::PACKAGE_GROUPS[$groupName];
@@ -1190,10 +1205,34 @@ class OptionalPackages
 
             if (is_dir($sourcePath)) {
                 $this->copyDirectoryRecursive($sourcePath, $destPath);
-            } else {
-                copy($sourcePath, $destPath);
+                continue;
+            }
+
+            $targetName = $this->resolveTemplateFileName($file);
+            if ($targetName !== null) {
+                copy($sourcePath, $destination . '/' . $targetName);
             }
         }
+    }
+
+    /**
+     * Resolve a template file name against the selected package groups
+     *
+     * "Name.<group>.php" is copied as "Name.php" only when <group> was selected,
+     * "Name.no-<group>.php" only when it was not. Returns null when the file must be skipped.
+     */
+    private function resolveTemplateFileName(string $file): ?string
+    {
+        $matched = preg_match('/^(?<name>[^.]+)\.(?<negated>no-)?(?<group>[a-z-]+)\.php$/', $file, $parts);
+
+        if ($matched !== 1 || ! isset(self::PACKAGE_GROUPS[$parts['group']])) {
+            return $file;
+        }
+
+        $groupSelected = in_array($parts['group'], $this->selectedPackages, true);
+        $wanted = $parts['negated'] === '' ? $groupSelected : ! $groupSelected;
+
+        return $wanted ? $parts['name'] . '.php' : null;
     }
 
     /**
@@ -1223,8 +1262,10 @@ class OptionalPackages
             }
 
             // Fallback to 'unnamed' if name is empty, invalid, or suggests skeleton/testing
-            if (empty($projectName) ||
-                in_array($projectName, ['backend', 'hexa-skeleton', 'hexaskeleton', 'mezzio-hexagonal-skeleton', 'mezziohexagonalskeleton'], true)) {
+            if (
+                empty($projectName) ||
+                in_array($projectName, ['backend', 'hexa-skeleton', 'hexaskeleton', 'mezzio-hexagonal-skeleton', 'mezziohexagonalskeleton'], true)
+            ) {
                 $projectName = 'unnamed';
             }
 

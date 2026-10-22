@@ -22,7 +22,7 @@ final class HomeHandlerTest extends TestCase
 
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
-        $this->assertSame('app', $body['name']);
+        $this->assertSame('Health Check API', $body['name']);
         $this->assertSame('healthy', $body['status']);
         $this->assertArrayHasKey('message', $body);
     }

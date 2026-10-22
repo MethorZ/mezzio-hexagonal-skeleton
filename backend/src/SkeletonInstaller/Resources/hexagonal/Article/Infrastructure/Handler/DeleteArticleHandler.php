@@ -6,6 +6,7 @@ namespace Article\Infrastructure\Handler;
 
 use Article\Application\Service\ArticleService;
 use Laminas\Diactoros\Response\EmptyResponse;
+use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -20,14 +21,19 @@ final readonly class DeleteArticleHandler implements RequestHandlerInterface
 {
     public function __construct(
         private ArticleService $articleService,
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getAttribute('id');
+
+        if (! is_string($id)) {
+            throw new LogicException('Route "article.delete" must define an {id} parameter');
+        }
+
         $this->articleService->delete($id);
 
         return new EmptyResponse(204);
     }
 }
-

@@ -68,4 +68,3 @@ final readonly class Content extends BaseValueObject
         }
     }
 }
-

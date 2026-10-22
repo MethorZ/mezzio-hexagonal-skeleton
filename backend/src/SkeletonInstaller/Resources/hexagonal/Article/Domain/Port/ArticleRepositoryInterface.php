@@ -50,4 +50,3 @@ interface ArticleRepositoryInterface
      */
     public function exists(ArticleId $id): bool;
 }
-

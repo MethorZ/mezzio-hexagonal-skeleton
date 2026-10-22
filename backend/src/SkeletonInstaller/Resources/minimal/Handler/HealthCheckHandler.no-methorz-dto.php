@@ -6,35 +6,28 @@ namespace App\Application\Handler;
 
 use App\Application\Request\HealthCheckRequest;
 use App\Application\Response\HealthCheckResponse;
-use MethorZ\Dto\Handler\DtoHandlerInterface;
-use MethorZ\Dto\Response\JsonSerializableDto;
+use Laminas\Diactoros\Response\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Health Check Handler
  *
- * Simple health check endpoint using methorz/http-dto for automatic
- * request/response handling.
- *
- * The DtoHandlerWrapper automatically:
- * - Maps query parameters to HealthCheckRequest DTO
- * - Validates the DTO (if validation attributes are present)
- * - Calls this handler with the validated DTO
- * - Serializes HealthCheckResponse to JSON
+ * Simple health check endpoint as a plain PSR-15 request handler.
+ * Install methorz/http-dto to map requests to DTOs and serialize responses automatically.
  */
-final readonly class HealthCheckHandler implements DtoHandlerInterface
+final readonly class HealthCheckHandler implements RequestHandlerInterface
 {
-    /**
-     * Handle health check request
-     *
-     * @param ServerRequestInterface $request The original PSR-7 request
-     * @param HealthCheckRequest $dto Validated request DTO (auto-injected)
-     * @return JsonSerializableDto Response DTO (auto-serialized to JSON)
-     */
-    public function __invoke(
-        ServerRequestInterface $request,
-        HealthCheckRequest $dto,
-    ): JsonSerializableDto {
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $dto = new HealthCheckRequest(
+            detailed: filter_var(
+                $request->getQueryParams()['detailed'] ?? false,
+                FILTER_VALIDATE_BOOLEAN,
+            ),
+        );
+
         $details = [];
 
         if ($dto->detailed) {
@@ -45,12 +38,14 @@ final readonly class HealthCheckHandler implements DtoHandlerInterface
             ];
         }
 
-        return new HealthCheckResponse(
+        $response = new HealthCheckResponse(
             status: 'ok',
             timestamp: (new \DateTimeImmutable())->format('c'),
             version: $this->getAppVersion(),
             details: $details,
         );
+
+        return new JsonResponse($response, $response->getStatusCode());
     }
 
     private function getAppVersion(): string
@@ -74,4 +69,3 @@ function uptime(): ?string
     }
     return null;
 }
-

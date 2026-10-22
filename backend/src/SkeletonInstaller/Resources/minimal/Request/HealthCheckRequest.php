@@ -8,12 +8,12 @@ namespace App\Application\Request;
  * Health Check Request DTO
  *
  * Simple request object for health check endpoint.
- * Automatically populated from query parameters by methorz/http-dto.
+ * Populated from query parameters (automatically when methorz/http-dto is installed).
  */
 final readonly class HealthCheckRequest
 {
     public function __construct(
         public bool $detailed = false,
-    ) {}
+    ) {
+    }
 }
-

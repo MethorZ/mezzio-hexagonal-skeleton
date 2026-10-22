@@ -20,7 +20,8 @@ setup: ## Initial project setup (run once)
 
 install: ## Install/update dependencies
 	@echo "$(BLUE)Installing dependencies...$(NC)"
-	@docker run --rm -v "$$(pwd)/backend:/app" -w /app composer:latest install
+	@docker build -t methorz-skeleton-installer:8.5.12 docker/installer
+	@docker run --rm -v "$$(pwd)/backend:/app" -w /app --entrypoint composer methorz-skeleton-installer:8.5.12 install
 	@echo "$(GREEN)Dependencies installed$(NC)"
 
 start: ## Start development environment

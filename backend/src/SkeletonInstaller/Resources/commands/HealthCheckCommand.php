@@ -30,7 +30,7 @@ final class HealthCheckCommand extends Command
                 'detailed',
                 'd',
                 InputOption::VALUE_NONE,
-                'Show detailed health information'
+                'Show detailed health information',
             )
             ->setHelp(
                 <<<'HELP'
@@ -40,7 +40,7 @@ final class HealthCheckCommand extends Command
 
                 For detailed information:
                 <info>php bin/console app:health-check --detailed</info>
-                HELP
+                HELP,
             );
     }
 
@@ -58,7 +58,7 @@ final class HealthCheckCommand extends Command
 
         $io->table(
             ['Check', 'Status'],
-            array_map(fn($key, $value) => [$key, $value], array_keys($checks), $checks)
+            array_map(fn($key, $value) => [$key, $value], array_keys($checks), $checks),
         );
 
         // Detailed checks if requested
@@ -73,7 +73,7 @@ final class HealthCheckCommand extends Command
 
             $io->table(
                 ['Parameter', 'Value'],
-                array_map(fn($key, $value) => [$key, $value], array_keys($detailed), $detailed)
+                array_map(fn($key, $value) => [$key, $value], array_keys($detailed), $detailed),
             );
         }
 
@@ -82,4 +82,3 @@ final class HealthCheckCommand extends Command
         return Command::SUCCESS;
     }
 }
-

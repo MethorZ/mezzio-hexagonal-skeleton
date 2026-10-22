@@ -14,6 +14,7 @@ use Article\Domain\ValueObject\Title;
 use DateTimeImmutable;
 use MethorZ\SwiftDb\Connection\Connection;
 use MethorZ\SwiftDb\Query\QueryBuilder;
+use UnexpectedValueException;
 
 /**
  * Database Article Repository (Outbound Adapter)
@@ -28,6 +29,7 @@ use MethorZ\SwiftDb\Query\QueryBuilder;
  *     content TEXT NOT NULL,
  *     author VARCHAR(100) NOT NULL,
  *     status ENUM('draft', 'published', 'archived') NOT NULL DEFAULT 'draft',
+ *     published_at TIMESTAMP(3) NULL,
  *     updated_at TIMESTAMP(3) NULL ON UPDATE CURRENT_TIMESTAMP(3),
  *     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
  *     INDEX idx_status (status),
@@ -45,7 +47,8 @@ final readonly class DbArticleRepository implements ArticleRepositoryInterface
 {
     public function __construct(
         private Connection $connection,
-    ) {}
+    ) {
+    }
 
     public function save(Article $article): void
     {
@@ -160,18 +163,48 @@ final readonly class DbArticleRepository implements ArticleRepositoryInterface
      */
     private function fromRow(array $row): Article
     {
+        $createdAt = new DateTimeImmutable($this->stringColumn($row, 'created_at'));
+
         return Article::reconstitute(
-            id: ArticleId::fromString($row['uuid']),
-            title: Title::fromString($row['title']),
-            content: Content::fromString($row['content']),
-            author: Author::fromString($row['author']),
-            status: ArticleStatus::from($row['status']),
-            createdAt: new DateTimeImmutable($row['created_at']),
-            updatedAt: new DateTimeImmutable($row['updated_at']),
-            publishedAt: $row['published_at'] !== null
-                ? new DateTimeImmutable($row['published_at'])
-                : null,
+            id: ArticleId::fromString($this->stringColumn($row, 'uuid')),
+            title: Title::fromString($this->stringColumn($row, 'title')),
+            content: Content::fromString($this->stringColumn($row, 'content')),
+            author: Author::fromString($this->stringColumn($row, 'author')),
+            status: ArticleStatus::from($this->stringColumn($row, 'status')),
+            createdAt: $createdAt,
+            // updated_at stays NULL until the row is updated for the first time
+            updatedAt: $this->nullableDateTimeColumn($row, 'updated_at') ?? $createdAt,
+            publishedAt: $this->nullableDateTimeColumn($row, 'published_at'),
         );
     }
-}
 
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function stringColumn(array $row, string $column): string
+    {
+        $value = $row[$column] ?? null;
+
+        if (! is_string($value)) {
+            throw new UnexpectedValueException(sprintf(
+                'Column "articles.%s" must be a string, got %s',
+                $column,
+                get_debug_type($value),
+            ));
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function nullableDateTimeColumn(array $row, string $column): ?DateTimeImmutable
+    {
+        if (($row[$column] ?? null) === null) {
+            return null;
+        }
+
+        return new DateTimeImmutable($this->stringColumn($row, $column));
+    }
+}

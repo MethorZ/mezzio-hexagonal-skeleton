@@ -18,5 +18,9 @@ final class ArticleNotFoundException extends DomainException
     {
         return new self("Article with ID '{$id->getValue()}' not found");
     }
-}
 
+    public function getStatusCode(): int
+    {
+        return 404;
+    }
+}

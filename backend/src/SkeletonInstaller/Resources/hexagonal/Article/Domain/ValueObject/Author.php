@@ -56,4 +56,3 @@ final readonly class Author extends BaseValueObject
         }
     }
 }
-

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Article\Domain\ValueObject;
 
+use Article\Domain\Exception\InvalidArticleException;
 use Core\Domain\ValueObject\BaseValueObject;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -35,6 +36,10 @@ final readonly class ArticleId extends BaseValueObject
      */
     public static function fromString(string $uuid): self
     {
+        if (! Uuid::isValid($uuid)) {
+            throw InvalidArticleException::invalidId($uuid);
+        }
+
         return new self(Uuid::fromString($uuid));
     }
 
@@ -55,8 +60,7 @@ final readonly class ArticleId extends BaseValueObject
 
     protected function validate(): void
     {
-        // UUID validation is handled by Uuid::fromString() which throws exception on invalid input
+        // UUID validation happens in fromString() before the Uuid instance is created
         // No additional validation needed
     }
 }
-
