@@ -7,9 +7,7 @@
  * This file is always loaded via config.php pattern matching.
  *
  * For environment-specific settings, use:
- * - development.global.php (dev only)
- * - production.global.php (prod only)
- * - testing.global.php (test only)
+ * - config/environment/{development,testing,production}.php (selected by APP_ENV, default production)
  * - local.php (developer-specific, not committed)
  */
 

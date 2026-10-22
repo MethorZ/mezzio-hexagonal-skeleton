@@ -10,7 +10,8 @@ use Article\Infrastructure\Handler\DeleteArticleHandler;
 use Article\Infrastructure\Handler\GetArticleHandler;
 use Article\Infrastructure\Handler\ListArticlesHandler;
 use Article\Infrastructure\Handler\UpdateArticleHandler;
-use Article\Infrastructure\Repository\InMemoryArticleRepository;
+use Article\Infrastructure\Repository\FileArticleRepository;
+use Article\Infrastructure\Repository\FileArticleRepositoryFactory;
 use Fig\Http\Message\RequestMethodInterface;
 
 /**
@@ -29,6 +30,10 @@ class ConfigProvider
         return [
             'dependencies' => $this->getDependencies(),
             'routes'       => $this->getRoutes(),
+            'article'      => [
+                // JSON file used by FileArticleRepository, relative to the backend directory
+                'storage_file' => 'data/articles.json',
+            ],
         ];
     }
 
@@ -41,12 +46,13 @@ class ConfigProvider
     {
         return [
             'aliases' => [
-                // Use InMemoryArticleRepository by default
-                // Switch to DbArticleRepository (requires methorz/swift-db) for database persistence
-                ArticleRepositoryInterface::class => InMemoryArticleRepository::class,
+                // FileArticleRepository keeps articles in data/articles.json across requests.
+                // Switch to DbArticleRepository (requires methorz/swift-db) for database persistence;
+                // InMemoryArticleRepository suits tests that must not touch the filesystem.
+                ArticleRepositoryInterface::class => FileArticleRepository::class,
             ],
             'factories' => [
-                // Explicit factories only if needed
+                FileArticleRepository::class => FileArticleRepositoryFactory::class,
             ],
         ];
     }

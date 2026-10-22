@@ -2,8 +2,8 @@ services:
   # PHP 8.5 Backend (Mezzio Application)
   backend:
     build:
-      context: ./docker/backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/backend/Dockerfile
       target: development
     ports:
       - "${BACKEND_PORT:-8081}:80"

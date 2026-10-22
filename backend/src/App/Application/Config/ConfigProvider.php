@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Config;
 
+use App\Application\Error\JsonErrorResponseGeneratorFactory;
 use App\Application\Handler\HomeHandler;
 use Fig\Http\Message\RequestMethodInterface;
+use Mezzio\Middleware\ErrorResponseGenerator;
 
 /**
  * Application Configuration Provider
@@ -34,6 +36,10 @@ class ConfigProvider
         return [
             'invokables' => [
                 HomeHandler::class => HomeHandler::class,
+            ],
+            'factories'  => [
+                // Renders exceptions caught by Mezzio's ErrorHandler as JSON
+                ErrorResponseGenerator::class => JsonErrorResponseGeneratorFactory::class,
             ],
         ];
     }

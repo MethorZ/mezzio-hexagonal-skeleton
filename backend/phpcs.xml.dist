@@ -107,6 +107,5 @@
 
     <rule ref="PSR12.Files.FileHeader.IncorrectOrder">
         <exclude-pattern>config/pipeline.php</exclude-pattern>
-        <exclude-pattern>src/MezzioInstaller/Resources/config/routes-*.php</exclude-pattern>
     </rule>
 </ruleset>

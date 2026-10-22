@@ -232,12 +232,12 @@ class MyHandler implements RequestHandlerInterface
 
 ## Configuration
 
-Environment configuration files are in `backend/config/autoload/`:
+Configuration is aggregated in `backend/config/config.php`:
 
-- `development.global.php` - Development settings
-- `production.global.php` - Production settings
-- `testing.global.php` - Test settings
-- `local.php` - Local overrides (not committed, copy from `local.php.dist`)
+- `config/environment/{development,testing,production}.php` - Environment settings; exactly one is loaded, selected by `APP_ENV` (default `production`)
+- `config/autoload/*.global.php` - Settings for all environments
+- `config/autoload/local.php` - Local overrides (not committed, copy from `local.php.dist`)
+- `config/development.config.php` - Development mode (`composer development-enable`), enables `debug` and disables the config cache
 
 ## Quality Tools
 

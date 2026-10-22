@@ -52,12 +52,17 @@ This project uses **Hexagonal Architecture** (also known as Ports & Adapters) to
 project/
 ├── backend/
 │   ├── src/
-│   │   ├── Core/                       # Shared domain primitives
-│   │   │   └── Domain/
-│   │   │       ├── ValueObject/
-│   │   │       │   └── BaseValueObject.php
-│   │   │       └── Exception/
-│   │   │           └── DomainException.php
+│   │   ├── Core/                       # Shared domain primitives and infrastructure
+│   │   │   ├── Domain/
+│   │   │   │   ├── ValueObject/
+│   │   │   │   │   └── BaseValueObject.php
+│   │   │   │   └── Exception/
+│   │   │   │       └── DomainException.php
+│   │   │   └── Infrastructure/
+│   │   │       ├── Config/
+│   │   │       │   └── ConfigProvider.php
+│   │   │       └── Error/
+│   │   │           └── JsonErrorResponseGenerator.php   # JSON error responses
 │   │   ├── HealthCheck/                # Minimalistic health check module
 │   │   │   ├── Application/
 │   │   │   │   ├── Service/
@@ -107,8 +112,9 @@ project/
 │   │           │   ├── DeleteArticleHandler.php
 │   │           │   └── ListArticlesHandler.php
 │   │           └── Repository/
-│   │               ├── InMemoryArticleRepository.php
-│   │               └── DbArticleRepository.php
+│   │               ├── FileArticleRepository.php      # Default: data/articles.json
+│   │               ├── InMemoryArticleRepository.php  # For tests
+│   │               └── DbArticleRepository.php        # Only with methorz/swift-db
 │   ├── config/
 │   │   ├── autoload/                   # Configuration files
 │   │   ├── config.php                  # Main config aggregator
@@ -478,7 +484,9 @@ final readonly class ArticleService
 - One handler per HTTP endpoint
 - Implements `DtoHandlerInterface` (for http-dto)
 - Calls application services
-- Maps exceptions to HTTP responses
+- Lets domain exceptions bubble up: the error handler answers with their `getStatusCode()`
+  (`DomainException` defaults to 400), as JSON from `Core\Infrastructure\Error\JsonErrorResponseGenerator`
+  or as RFC 7807 Problem Details when `methorz/http-problem-details` is installed
 
 **Example**:
 ```php
@@ -661,8 +669,11 @@ The domain value objects enforce the same rules either way.
 
 ### Using `methorz/swift-db`
 
+By default, articles are stored in `backend/data/articles.json` by `FileArticleRepository`
+(configured via `article.storage_file`), which is fine for development but not for production.
+
 `DbArticleRepository` is only generated when `methorz/swift-db` was selected during installation.
-Use it instead of `InMemoryArticleRepository`:
+Use it instead of `FileArticleRepository`:
 
 1. Update `Article/Application/Config/ConfigProvider.php`:
 ```php

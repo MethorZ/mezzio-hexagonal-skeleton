@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Laminas\Stratigility\Middleware\ErrorHandler;
 use Mezzio\Application;
 use Mezzio\Handler\NotFoundHandler;
 use Mezzio\Helper\ServerUrlMiddleware;
@@ -21,7 +22,7 @@ use Psr\Container\ContainerInterface;
 return function (Application $app, MiddlewareFactory $factory, ContainerInterface $container): void {
     // The error handler should be the first (most outer) middleware to catch
     // all Exceptions.
-    // $app->pipe(ErrorHandler::class);
+    $app->pipe(ErrorHandler::class);
 
     $app->pipe(ServerUrlMiddleware::class);
 

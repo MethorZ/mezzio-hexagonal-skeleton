@@ -12,6 +12,10 @@ $cacheConfig = [
     'config_cache_path' => 'data/cache/config-cache.php',
 ];
 
+// Exactly one file from config/environment/ is loaded; unknown or missing APP_ENV values fall back to production
+$environment = getenv('APP_ENV');
+$environment = in_array($environment, ['development', 'testing', 'production'], true) ? $environment : 'production';
+
 $aggregator = new ConfigAggregator([
     // Framework providers
     \Laminas\ServiceManager\ConfigProvider::class,
@@ -25,6 +29,9 @@ $aggregator = new ConfigAggregator([
 
     // Application
     App\Application\Config\ConfigProvider::class,
+
+    // Environment-specific settings (APP_ENV)
+    new PhpFileProvider(realpath(__DIR__) . '/environment/' . $environment . '.php'),
 
     // Load application config in a pre-defined order in such a way that local settings
     // overwrite global settings. (Loaded as first to last):

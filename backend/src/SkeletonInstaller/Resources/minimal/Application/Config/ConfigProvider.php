@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Config;
 
+use App\Application\Error\JsonErrorResponseGeneratorFactory;
 use App\Application\Handler\HealthCheckHandler;
 use Fig\Http\Message\RequestMethodInterface;
+use Mezzio\Middleware\ErrorResponseGenerator;
 
 /**
  * Application ConfigProvider
@@ -35,8 +37,8 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                // Add explicit factories here if needed
-                // ReflectionBasedAbstractFactory is now in global.php
+                // Renders exceptions caught by Mezzio's ErrorHandler as JSON
+                ErrorResponseGenerator::class => JsonErrorResponseGeneratorFactory::class,
             ],
         ];
     }

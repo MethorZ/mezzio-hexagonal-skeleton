@@ -1,0 +1,20 @@
+# Build context is the project root (see docker-compose*.yml); only backend/ and docker/backend/ are used.
+.git
+.env
+.env.*
+.idea
+.vscode
+.cursor
+**/.DS_Store
+
+vendor
+frontend/node_modules
+
+backend/vendor
+backend/.phpunit.cache
+backend/.phpcs-cache
+backend/data/*
+
+# Development mode must never reach production images
+backend/config/development.config.php
+backend/config/autoload/development.local.php

@@ -431,42 +431,20 @@ class OptionalPackages
     {
         $configDir = $this->projectRoot . '/backend/config/autoload';
         $templateDir = __DIR__ . '/Resources/config';
-        $configProviderTemplateDir = __DIR__ . '/Resources/config-provider';
 
         foreach ($this->selectedPackages as $groupName) {
             $config = self::PACKAGE_GROUPS[$groupName];
 
-            // Copy config file if specified
-            if ($config['config'] !== null) {
-                $sourceFile = $templateDir . '/' . $config['config'];
-                $targetFile = $configDir . '/' . $config['config'];
-
-                if (file_exists($sourceFile)) {
-                    copy($sourceFile, $targetFile);
-                    $this->io->write(sprintf('  Copied config: <info>%s</info>', $config['config']));
-                }
+            if ($config['config'] === null) {
+                continue;
             }
 
-            // Copy ConfigProvider template if specified
-            if (isset($config['configProviderTemplate'])) {
-                $sourceFile = $configProviderTemplateDir . '/' . $config['configProviderTemplate'];
+            $sourceFile = $templateDir . '/' . $config['config'];
+            $targetFile = $configDir . '/' . $config['config'];
 
-                // Determine target path based on namespace (e.g., App\Logging\Config -> src/App/Logging/Config)
-                $namespace = $config['configProvider'];
-                $namespace = str_replace('\\', '/', $namespace);
-                $namespace = str_replace('::class', '', $namespace);
-                $targetFile = $this->projectRoot . '/backend/src/' . $namespace . '.php';
-
-                // Create directory if it doesn't exist
-                $targetDir = dirname($targetFile);
-                if (!is_dir($targetDir)) {
-                    mkdir($targetDir, 0755, true);
-                }
-
-                if (file_exists($sourceFile)) {
-                    copy($sourceFile, $targetFile);
-                    $this->io->write(sprintf('  Created ConfigProvider: <info>%s</info>', basename(dirname($targetFile)) . '/ConfigProvider.php'));
-                }
+            if (file_exists($sourceFile)) {
+                copy($sourceFile, $targetFile);
+                $this->io->write(sprintf('  Copied config: <info>%s</info>', $config['config']));
             }
         }
     }
@@ -558,9 +536,9 @@ class OptionalPackages
         $pipelineFile = $this->projectRoot . '/backend/config/pipeline.php';
         $content = file_get_contents($pipelineFile);
 
-        // Add "first" middleware (after error handler comment)
+        // Add "first" middleware (directly inside the error handler)
         if (! empty($middlewareToAdd['first'])) {
-            $marker = "    // \$app->pipe(ErrorHandler::class);\n";
+            $marker = "    \$app->pipe(ErrorHandler::class);\n";
             $position = strpos($content, $marker);
             if ($position !== false) {
                 $middlewareCode = "\n";
@@ -622,70 +600,6 @@ class OptionalPackages
         ];
 
         return $comments[$groupName] ?? 'Middleware';
-    }
-
-    /**
-     * Update HomeHandler to use http-dto if selected
-     */
-    private function updateHandlerForDTO(): void
-    {
-        // Check if methorz-dto was selected
-        if (! in_array('methorz-dto', $this->selectedPackages, true)) {
-            return;
-        }
-
-        $this->io->write('');
-        $this->io->write('<info>Setting up http-dto example...</info>');
-
-        $handlerDir = $this->projectRoot . '/backend/src/App/Application/Handler';
-        $requestDir = $this->projectRoot . '/backend/src/App/Application/Request';
-        $responseDir = $this->projectRoot . '/backend/src/App/Application/Response';
-        $configDir = $this->projectRoot . '/backend/src/App/Application/Config';
-        $templateDir = __DIR__ . '/Resources';
-
-        // Create Request and Response directories
-        if (! is_dir($requestDir)) {
-            mkdir($requestDir, 0755, true);
-        }
-        if (! is_dir($responseDir)) {
-            mkdir($responseDir, 0755, true);
-        }
-
-        // Copy Request DTO
-        $requestSource = $templateDir . '/request/HealthCheckRequest.php';
-        $requestTarget = $requestDir . '/HealthCheckRequest.php';
-        if (file_exists($requestSource)) {
-            copy($requestSource, $requestTarget);
-            $this->io->write('  Created <info>Request/HealthCheckRequest.php</info>');
-        }
-
-        // Copy Response DTO
-        $responseSource = $templateDir . '/response/HealthCheckResponse.php';
-        $responseTarget = $responseDir . '/HealthCheckResponse.php';
-        if (file_exists($responseSource)) {
-            copy($responseSource, $responseTarget);
-            $this->io->write('  Created <info>Response/HealthCheckResponse.php</info>');
-        }
-
-        // Replace HomeHandler with DTO version
-        $handlerSource = $templateDir . '/handlers/HomeHandler.dto.php';
-        $handlerTarget = $handlerDir . '/HomeHandler.php';
-        if (file_exists($handlerSource)) {
-            copy($handlerSource, $handlerTarget);
-            $this->io->write('  Updated <info>Handler/HomeHandler.php</info> (DtoHandlerInterface)');
-        }
-
-        // Replace ConfigProvider with DTO-enabled version
-        $configSource = $templateDir . '/config-provider/ConfigProvider.dto.php';
-        $configTarget = $configDir . '/ConfigProvider.php';
-        if (file_exists($configSource)) {
-            copy($configSource, $configTarget);
-            $this->io->write('  Updated <info>Config/ConfigProvider.php</info> (DtoHandlerWrapper)');
-        }
-
-        $this->io->write('');
-        $this->io->write('  <comment>✨ http-dto example ready!</comment>');
-        $this->io->write('  <comment>Try: GET / or GET /?detailed=true</comment>');
     }
 
     /**
@@ -855,7 +769,7 @@ class OptionalPackages
         $this->io->write('');
         $this->io->write('<info>Creating minimal architecture structure...</info>');
 
-        $srcDir = $this->projectRoot . '/backend/src/App/Application';
+        $srcDir = $this->projectRoot . '/backend/src/App';
         $templateDir = __DIR__ . '/Resources/minimal';
 
         // Copy minimal architecture templates
@@ -879,10 +793,11 @@ class OptionalPackages
     {
         // Create directories
         $directories = [
-            'Handler',
-            'Request',
-            'Response',
-            'Config',
+            'Application/Handler',
+            'Application/Request',
+            'Application/Response',
+            'Application/Config',
+            'Tests/Application/Handler',
         ];
 
         foreach ($directories as $dir) {
@@ -916,7 +831,7 @@ class OptionalPackages
             $this->recursiveDelete($appDir);
         }
 
-        // Create Core shared module (Domain only - no Application/Port)
+        // Create Core shared module (shared domain base classes and JSON error handling)
         $this->createHexagonalModule('Core', $templateDir, $srcDir, true);
 
         // Create HealthCheck example module (simplified)
@@ -1133,7 +1048,9 @@ class OptionalPackages
 
         // Replace App ConfigProvider with hexagonal module ConfigProviders
         // Try both with and without leading backslash
-        $replacement = "HealthCheck\\Application\\Config\\ConfigProvider::class,\n    Article\\Application\\Config\\ConfigProvider::class";
+        $replacement = "Core\\Infrastructure\\Config\\ConfigProvider::class,\n"
+            . "    HealthCheck\\Application\\Config\\ConfigProvider::class,\n"
+            . "    Article\\Application\\Config\\ConfigProvider::class";
 
         $content = str_replace(
             "App\\Application\\Config\\ConfigProvider::class",

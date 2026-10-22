@@ -19,20 +19,23 @@ project/
 ├── backend/
 │   ├── src/
 │   │   └── App/
-│   │       └── Application/
-│   │           ├── Config/             # Dependency injection and routing
-│   │           │   └── ConfigProvider.php
-│   │           ├── Handler/            # HTTP request handlers (PSR-15)
-│   │           │   └── HealthCheckHandler.php
-│   │           ├── Request/            # Request DTOs (with http-dto)
-│   │           │   └── HealthCheckRequest.php
-│   │           └── Response/           # Response DTOs (with http-dto)
-│   │               └── HealthCheckResponse.php
+│   │       ├── Application/
+│   │       │   ├── Config/             # Dependency injection and routing
+│   │       │   │   └── ConfigProvider.php
+│   │       │   ├── Error/              # JSON responses for uncaught exceptions
+│   │       │   │   └── JsonErrorResponseGenerator.php
+│   │       │   ├── Handler/            # HTTP request handlers (PSR-15)
+│   │       │   │   └── HealthCheckHandler.php
+│   │       │   ├── Request/            # Request DTOs (with http-dto)
+│   │       │   │   └── HealthCheckRequest.php
+│   │       │   └── Response/           # Response DTOs (with http-dto)
+│   │       │       └── HealthCheckResponse.php
+│   │       └── Tests/                  # PHPUnit tests (mirrors Application/)
 │   ├── config/
 │   │   ├── autoload/                   # Configuration files
-│   │   │   ├── database.php
-│   │   │   ├── logging.php
-│   │   │   ├── cors.php
+│   │   │   ├── database.local.php      # From database.local.php.dist (if swift-db)
+│   │   │   ├── logging.global.php
+│   │   │   ├── cors.global.php
 │   │   │   └── ...
 │   │   ├── config.php                  # Main config aggregator
 │   │   └── pipeline.php                # Middleware pipeline
@@ -407,21 +410,25 @@ JWT_SECRET=your-secret-key-here
 
 ### Database Configuration
 
-If you installed `methorz/swift-db`, configure it in `config/autoload/database.php`:
+If you installed `methorz/swift-db`, copy `config/autoload/database.local.php.dist` to
+`config/autoload/database.local.php` (git-ignored) and adjust the connection:
 
 ```php
 return [
-    'db' => [
-        'host'     => $_ENV['DB_HOST'] ?? 'database',
-        'port'     => (int) ($_ENV['DB_PORT'] ?? 3306),
-        'database' => $_ENV['DB_NAME'] ?? 'app',
-        'username' => $_ENV['DB_USER'] ?? 'app',
-        'password' => $_ENV['DB_PASSWORD'] ?? 'secret',
-        'charset'  => 'utf8mb4',
-        'options'  => [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+    'database' => [
+        'connections' => [
+            'default' => [
+                'dsn'      => 'mysql:host=database;dbname=app_db;charset=utf8mb4',
+                'username' => 'app_user',
+                'password' => 'app_password',
+                'options'  => [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ],
+            ],
         ],
+        'default' => 'default',
     ],
 ];
 ```
